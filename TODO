@@ -1,0 +1,30 @@
+list-contact-organisations
+list-organisation-contacts
+
+Add tools for .photos
+Add tools for .groups
+Add tools for .blocks
+Add tools for .numbers
+Add tools for .addresses
+Add tools for .chats
+Add tools for .birthday
+Test find-contact-by-email
+Test find-contact-by-name
+Test find-contact-by-pgpkey
+Test find-contact-by-site
+Test get-contact-emails
+Test get-contact-name
+Test get-contact-organisations
+Test get-contact-pgpkeys
+Test get-contact-sites
+Test list-contact-organisations
+Test list-organisation-contacts
+Test set-contact-emails
+Test set-contact-name
+Test set-contact-organisations
+Test set-contact-pgpkeys
+Test set-contact-sites
+Add man pages
+Add readme
+Add tests
+Add multicall binary
