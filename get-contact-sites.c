@@ -1,7 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 #include "common.h"
 
-USAGE("[-c context] [-a address] [-CA] contact-id ...");
+USAGE("[-a address] [-c context] [-AC] contact-id ...");
 
 
 int
@@ -16,21 +16,21 @@ main(int argc, char *argv[])
 	size_t i;
 
 	ARGBEGIN {
-	case 'c':
-		if (lookup_ctx)
-			usage();
-		lookup_ctx = ARG();
-		break;
 	case 'a':
 		if (lookup_addr)
 			usage();
 		lookup_addr = ARG();
 		break;
-	case 'C':
-		display_ctx = 1;
+	case 'c':
+		if (lookup_ctx)
+			usage();
+		lookup_ctx = ARG();
 		break;
 	case 'A':
 		display_addr = 1;
+		break;
+	case 'C':
+		display_ctx = 1;
 		break;
 	default:
 		usage();

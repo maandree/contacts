@@ -5,12 +5,14 @@ include $(CONFIGFILE)
 
 
 BIN =\
+	find-contact-by-chat\
 	find-contact-by-email\
 	find-contact-by-name\
 	find-contact-by-organisation\
 	find-contact-by-pgpkey\
 	find-contact-by-photo\
 	find-contact-by-site\
+	get-contact-chats\
 	get-contact-emails\
 	get-contact-file\
 	get-contact-gender\
@@ -22,11 +24,13 @@ BIN =\
 	get-contact-photos\
 	get-contact-sites\
 	is-contact-ice\
+	list-chat-contacts\
 	list-contact-groups\
 	list-contact-organisations\
 	list-contacts\
 	list-group-contacts\
 	list-organisation-contacts\
+	set-contact-chats\
 	set-contact-emails\
 	set-contact-gender\
 	set-contact-groups\
@@ -64,6 +68,9 @@ contacts.c: contacts.c.in Makefile
 	printf '\n\n' >> $@
 	cat contacts.c.in >> $@
 
+find-contact-by-chat: find-contact-by-chat.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
+
 find-contact-by-email: find-contact-by-email.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
@@ -80,6 +87,9 @@ find-contact-by-photo: find-contact-by-photo.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 find-contact-by-site: find-contact-by-site.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
+
+get-contact-chats: get-contact-chats.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 get-contact-emails: get-contact-emails.o
@@ -115,6 +125,9 @@ get-contact-sites: get-contact-sites.o
 is-contact-ice: is-contact-ice.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
+list-chat-contacts: list-chat-contacts.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
+
 list-contact-groups: list-contact-groups.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
@@ -128,6 +141,9 @@ list-group-contacts: list-group-contacts.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 list-organisation-contacts: list-organisation-contacts.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
+
+set-contact-chats: set-contact-chats.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 set-contact-emails: set-contact-emails.o
