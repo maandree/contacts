@@ -6,6 +6,7 @@
 *.so.*
 *.su
 *.lo
+*.bo
 /find-contact-by-email
 /find-contact-by-name
 /find-contact-by-pgpkey
@@ -30,3 +31,5 @@
 /set-contact-organisations
 /set-contact-pgpkeys
 /set-contact-sites
+/contacts
+/contacts.c

@@ -1,0 +1,30 @@
+/* See LICENSE file for copyright and license details. */
+#include <stdio.h>
+#include <string.h>
+
+#define X(NAM) int NAM##_main(int, char *[]);
+LIST_COMMANDS
+#undef X
+
+char *argv0 = NULL;
+
+int
+main(int argc, char *argv[])
+{
+ 	char *name, *p;
+
+      	name = strrchr(*argv, '/');
+	if (!name++)
+		name = *argv;
+	for (p = name; (p = strchr(p, '-'));)
+		*p++ = '_';
+
+#define X(NAM)\
+	if (!strcmp(name, #NAM))\
+		return NAM##_main(argc, argv);
+	LIST_COMMANDS;
+#undef X
+
+        fprintf(stderr, "%s: unrecognised command for multicall binary\n", *argv);
+	return 127;
+}

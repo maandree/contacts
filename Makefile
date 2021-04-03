@@ -32,17 +32,27 @@ HDR =\
 	common.h
 
 OBJ = $(BIN:=.o)
+BOBJ = $(BIN:=.bo)
 
 
-all: $(BIN)
+all: $(BIN) contacts
 $(OBJ): $(@:.o=.c) $(HDR)
-
-libcontacts.a: $(OBJ)
-	$(AR) rc $@ $(OBJ)
-	$(AR) -s $@
+$(BOBJ): $(@:.bo=.c) $(HDR)
 
 .c.o:
 	$(CC) -c -o $@ $< $(CFLAGS) $(CPPFLAGS)
+
+.c.bo:
+	$(CC) -c -o $@ $< $(CFLAGS) $(CPPFLAGS) -Dmain="$$(printf '%s\n' $*_main | tr - _)" -DMULTICALL_BINARY
+
+contacts: contacts.o $(BOBJ)
+	$(CC) -o $@ $@.o $(BOBJ) $(LDFLAGS)
+
+contacts.c: contacts.c.in Makefile
+	printf '#define LIST_COMMANDS' > $@
+	printf '\\\n\tX(%s)' $(BIN) | tr - _ >> $@
+	printf '\n\n' >> $@
+	cat contacts.c.in >> $@
 
 find-contact-by-email: find-contact-by-email.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
@@ -120,13 +130,34 @@ install: $(BIN)
 	mkdir -p -- "$(DESTDIR)$(PREFIX)/bin"
 	cp -- $(BIN) "$(DESTDIR)$(PREFIX)/bin/"
 
+install-mcb: contacts
+	mkdir -p -- "$(DESTDIR)$(PREFIX)/bin"
+	set -- $(BIN) &&\
+		cp -- "$$1" "$(DESTDIR)$(PREFIX)/bin/$$1" &&\
+		linkto="$$1" &&\
+		shift 1 &&\
+		cd -- "$(DESTDIR)$(PREFIX)/bin/" &&\
+			for f; do\
+				ln -- "$$linkto" "$$f" || exit 1;\
+			done
+
+install-mcb-symlinks: contacts
+	mkdir -p -- "$(DESTDIR)$(PREFIX)/lib"
+	mkdir -p -- "$(DESTDIR)$(PREFIX)/bin"
+	cp -- contacts "$(DESTDIR)$(PREFIX)/lib/"
+	cd -- "$(DESTDIR)$(PREFIX)/bin/" &&\
+		for f in $(BIN); do\
+			ln -s -- ../lib/contacts "$$f" || exit 1;\
+		done
+
 uninstall:
 	-cd -- "$(DESTDIR)$(PREFIX)/bin" && rm -f -- $(BIN)
+	-rm -f -- "$(DESTDIR)$(PREFIX)/lib/contacts"
 
 clean:
-	-rm -f -- *.o *.a *.lo *.so *.su $(BIN)
+	-rm -f -- *.o *.a *.lo *.so *.bo *.su $(BIN) contacts contacts.c
 
 .SUFFIXES:
-.SUFFIXES: .c .o
+.SUFFIXES: .c .o .bo
 
-.PHONY: all install uninstall clean
+.PHONY: all install install-mcb install-mcb-symlinks uninstall clean
