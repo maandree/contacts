@@ -13,6 +13,7 @@
 /find-contact-by-name
 /find-contact-by-organisation
 /find-contact-by-pgpkey
+/find-contact-by-photo
 /find-contact-by-site
 /get-contact-emails
 /get-contact-file
@@ -22,6 +23,7 @@
 /get-contact-notes
 /get-contact-organisations
 /get-contact-pgpkeys
+/get-contact-photos
 /get-contact-sites
 /is-contact-ice
 /list-contact-groups
@@ -37,4 +39,5 @@
 /set-contact-notes
 /set-contact-organisations
 /set-contact-pgpkeys
+/set-contact-photos
 /set-contact-sites

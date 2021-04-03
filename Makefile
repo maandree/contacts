@@ -9,6 +9,7 @@ BIN =\
 	find-contact-by-name\
 	find-contact-by-organisation\
 	find-contact-by-pgpkey\
+	find-contact-by-photo\
 	find-contact-by-site\
 	get-contact-emails\
 	get-contact-file\
@@ -18,6 +19,7 @@ BIN =\
 	get-contact-notes\
 	get-contact-organisations\
 	get-contact-pgpkeys\
+	get-contact-photos\
 	get-contact-sites\
 	is-contact-ice\
 	list-contact-groups\
@@ -33,6 +35,7 @@ BIN =\
 	set-contact-notes\
 	set-contact-organisations\
 	set-contact-pgpkeys\
+	set-contact-photos\
 	set-contact-sites
 
 HDR =\
@@ -73,6 +76,9 @@ find-contact-by-organisation: find-contact-by-organisation.o
 find-contact-by-pgpkey: find-contact-by-pgpkey.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
+find-contact-by-photo: find-contact-by-photo.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
+
 find-contact-by-site: find-contact-by-site.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
@@ -98,6 +104,9 @@ get-contact-organisations: get-contact-organisations.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 get-contact-pgpkeys: get-contact-pgpkeys.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
+
+get-contact-photos: get-contact-photos.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 get-contact-sites: get-contact-sites.o
@@ -143,6 +152,9 @@ set-contact-organisations: set-contact-organisations.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 set-contact-pgpkeys: set-contact-pgpkeys.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
+
+set-contact-photos: set-contact-photos.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 set-contact-sites: set-contact-sites.o
