@@ -59,7 +59,7 @@ main(int argc, char *argv[])
 		if (list) {
 			if (name)
 				printf("%s (%s)\n", contacts[i]->id, name);
-		} else if (name && !strcmp(name, argv[0])) {
+		} else if (!strcmpnul(name, argv[0])) {
 			printf("%s\n", contacts[i]->id);
 		}
 		libcontacts_contact_destroy(contacts[i]);

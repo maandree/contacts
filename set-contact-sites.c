@@ -53,7 +53,7 @@ main(int argc, char *argv[])
 			for (; contact.sites[i]; i++);
 		} else if (update_address) {
 			for (; contact.sites[i]; i++) {
-				if (contact.sites[i]->context && !strcmp(contact.sites[i]->context, argv[1])) {
+				if (!strcmpnul(contact.sites[i]->context, argv[1])) {
 					free(contact.sites[i]->address);
 					contact.sites[i]->address = estrdup(argv[2]);
 					goto save;
@@ -61,7 +61,7 @@ main(int argc, char *argv[])
 			}
 		} else if (update_context) {
 			for (; contact.sites[i]; i++) {
-				if (contact.sites[i]->address && !strcmp(contact.sites[i]->address, argv[2])) {
+				if (!strcmpnul(contact.sites[i]->address, argv[2])) {
 					free(contact.sites[i]->context);
 					contact.sites[i]->context = estrdup(argv[1]);
 					goto save;
@@ -69,16 +69,16 @@ main(int argc, char *argv[])
 			}
 		} else if (argc == 3) {
 			for (; contact.sites[i]; i++)
-				if (contact.sites[i]->context && !strcmp(contact.sites[i]->context, argv[1]))
-					if (contact.sites[i]->address && !strcmp(contact.sites[i]->address, argv[2]))
+				if (!strcmpnul(contact.sites[i]->context, argv[1]))
+					if (!strcmpnul(contact.sites[i]->address, argv[2]))
 						break;
 		} else if (remove_by_context) {
 			for (; contact.sites[i]; i++)
-				if (contact.sites[i]->context && !strcmp(contact.sites[i]->context, argv[1]))
+				if (!strcmpnul(contact.sites[i]->context, argv[1]))
 					break;
 		} else {
 			for (; contact.sites[i]; i++)
-				if (contact.sites[i]->address && !strcmp(contact.sites[i]->address, argv[1]))
+				if (!strcmpnul(contact.sites[i]->address, argv[1]))
 					break;
 		}
 	}

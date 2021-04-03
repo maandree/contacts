@@ -53,7 +53,7 @@ main(int argc, char *argv[])
 			for (; contact.pgpkeys[i]; i++);
 		} else if (update_id) {
 			for (; contact.pgpkeys[i]; i++) {
-				if (contact.pgpkeys[i]->context && !strcmp(contact.pgpkeys[i]->context, argv[1])) {
+				if (!strcmpnul(contact.pgpkeys[i]->context, argv[1])) {
 					free(contact.pgpkeys[i]->id);
 					contact.pgpkeys[i]->id = estrdup(argv[2]);
 					goto save;
@@ -61,7 +61,7 @@ main(int argc, char *argv[])
 			}
 		} else if (update_context) {
 			for (; contact.pgpkeys[i]; i++) {
-				if (contact.pgpkeys[i]->id && !strcmp(contact.pgpkeys[i]->id, argv[2])) {
+				if (!strcmpnul(contact.pgpkeys[i]->id, argv[2])) {
 					free(contact.pgpkeys[i]->context);
 					contact.pgpkeys[i]->context = estrdup(argv[1]);
 					goto save;
@@ -69,16 +69,16 @@ main(int argc, char *argv[])
 			}
 		} else if (argc == 3) {
 			for (; contact.pgpkeys[i]; i++)
-				if (contact.pgpkeys[i]->context && !strcmp(contact.pgpkeys[i]->context, argv[1]))
-					if (contact.pgpkeys[i]->id && !strcmp(contact.pgpkeys[i]->id, argv[2]))
+				if (!strcmpnul(contact.pgpkeys[i]->context, argv[1]))
+					if (!strcmpnul(contact.pgpkeys[i]->id, argv[2]))
 						break;
 		} else if (remove_by_context) {
 			for (; contact.pgpkeys[i]; i++)
-				if (contact.pgpkeys[i]->context && !strcmp(contact.pgpkeys[i]->context, argv[1]))
+				if (!strcmpnul(contact.pgpkeys[i]->context, argv[1]))
 					break;
 		} else {
 			for (; contact.pgpkeys[i]; i++)
-				if (contact.pgpkeys[i]->id && !strcmp(contact.pgpkeys[i]->id, argv[1]))
+				if (!strcmpnul(contact.pgpkeys[i]->id, argv[1]))
 					break;
 		}
 	}

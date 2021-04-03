@@ -59,9 +59,9 @@ main(int argc, char *argv[])
 			ret = 1;
 		} else {
 			for (orgs = contact.organisations; (org = *orgs); orgs++) {
-				if (lookup_org && (!org->organisation || strcmp(org->organisation, lookup_org)))
+				if (lookup_org && strcmpnul(org->organisation, lookup_org))
 					continue;
-				if (lookup_title && (!org->title || strcmp(org->title, lookup_title)))
+				if (lookup_title && strcmpnul(org->title, lookup_title))
 					continue;
 				if (lookup_org && lookup_title && !display_org && !display_title) {
 					printf("%s\n", *argv);

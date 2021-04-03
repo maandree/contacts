@@ -53,8 +53,7 @@ main(int argc, char *argv[])
 			for (; contact.organisations[i]; i++);
 		} else if (update_title) {
 			for (; contact.organisations[i]; i++) {
-				if (contact.organisations[i]->organisation &&
-				    !strcmp(contact.organisations[i]->organisation, argv[1])) {
+				if (!strcmpnul(contact.organisations[i]->organisation, argv[1])) {
 					free(contact.organisations[i]->title);
 					contact.organisations[i]->title = estrdup(argv[2]);
 					goto save;
@@ -62,7 +61,7 @@ main(int argc, char *argv[])
 			}
 		} else if (update_organisation) {
 			for (; contact.organisations[i]; i++) {
-				if (contact.organisations[i]->title && !strcmp(contact.organisations[i]->title, argv[2])) {
+				if (!strcmpnul(contact.organisations[i]->title, argv[2])) {
 					free(contact.organisations[i]->organisation);
 					contact.organisations[i]->organisation = estrdup(argv[1]);
 					goto save;
@@ -70,16 +69,16 @@ main(int argc, char *argv[])
 			}
 		} else if (argc == 3) {
 			for (; contact.organisations[i]; i++)
-				if (contact.organisations[i]->organisation && !strcmp(contact.organisations[i]->organisation, argv[1]))
-					if (contact.organisations[i]->title && !strcmp(contact.organisations[i]->title, argv[2]))
+				if (!strcmpnul(contact.organisations[i]->organisation, argv[1]))
+					if (!strcmpnul(contact.organisations[i]->title, argv[2]))
 						break;
 		} else if (remove_by_organisation) {
 			for (; contact.organisations[i]; i++)
-				if (contact.organisations[i]->organisation && !strcmp(contact.organisations[i]->organisation, argv[1]))
+				if (!strcmpnul(contact.organisations[i]->organisation, argv[1]))
 					break;
 		} else {
 			for (; contact.organisations[i]; i++)
-				if (contact.organisations[i]->title && !strcmp(contact.organisations[i]->title, argv[1]))
+				if (!strcmpnul(contact.organisations[i]->title, argv[1]))
 					break;
 		}
 	}

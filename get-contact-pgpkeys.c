@@ -59,9 +59,9 @@ main(int argc, char *argv[])
 			ret = 1;
 		} else {
 			for (keys = contact.pgpkeys; (key = *keys); keys++) {
-				if (lookup_ctx && (!key->context || strcmp(key->context, lookup_ctx)))
+				if (lookup_ctx && strcmpnul(key->context, lookup_ctx))
 					continue;
-				if (lookup_id && (!key->id || strcmp(key->id, lookup_id)))
+				if (lookup_id && strcmpnul(key->id, lookup_id))
 					continue;
 				if (lookup_ctx && lookup_id && !display_ctx && !display_id) {
 					printf("%s\n", *argv);

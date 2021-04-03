@@ -42,7 +42,7 @@ main(int argc, char *argv[])
 			for (; (email = *emails); emails++) {
 				if (!email->address)
 					continue;
-				if (context && (!email->context || strcmp(email->context, context)))
+				if (context && strcmpnul(email->context, context))
 					continue;
 				if (list)
 					printf("%s (%s)\n", contacts[i]->id, email->address);

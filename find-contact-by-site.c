@@ -42,7 +42,7 @@ main(int argc, char *argv[])
 			for (; (site = *sites); sites++) {
 				if (!site->address)
 					continue;
-				if (context && (!site->context || strcmp(site->context, context)))
+				if (context && strcmpnul(site->context, context))
 					continue;
 				if (list)
 					printf("%s (%s)\n", contacts[i]->id, site->address);

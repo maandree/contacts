@@ -42,7 +42,7 @@ main(int argc, char *argv[])
 			for (; (pgpkey = *pgpkeys); pgpkeys++) {
 				if (!pgpkey->id)
 					continue;
-				if (context && (!pgpkey->context || strcmp(pgpkey->context, context)))
+				if (context && strcmpnul(pgpkey->context, context))
 					continue;
 				if (list)
 					printf("%s (%s)\n", contacts[i]->id, pgpkey->id);

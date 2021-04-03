@@ -59,9 +59,9 @@ main(int argc, char *argv[])
 			ret = 1;
 		} else {
 			for (sites = contact.sites; (site = *sites); sites++) {
-				if (lookup_ctx && (!site->context || strcmp(site->context, lookup_ctx)))
+				if (lookup_ctx && strcmpnul(site->context, lookup_ctx))
 					continue;
-				if (lookup_addr && (!site->address || strcmp(site->address, lookup_addr)))
+				if (lookup_addr && strcmpnul(site->address, lookup_addr))
 					continue;
 				if (lookup_ctx && lookup_addr && !display_ctx && !display_addr) {
 					printf("%s\n", *argv);

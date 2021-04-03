@@ -59,9 +59,9 @@ main(int argc, char *argv[])
 			ret = 1;
 		} else {
 			for (emails = contact.emails; (email = *emails); emails++) {
-				if (lookup_ctx && (!email->context || strcmp(email->context, lookup_ctx)))
+				if (lookup_ctx && strcmpnul(email->context, lookup_ctx))
 					continue;
-				if (lookup_addr && (!email->address || strcmp(email->address, lookup_addr)))
+				if (lookup_addr && strcmpnul(email->address, lookup_addr))
 					continue;
 				if (lookup_ctx && lookup_addr && !display_ctx && !display_addr) {
 					printf("%s\n", *argv);
