@@ -7,20 +7,27 @@ include $(CONFIGFILE)
 BIN =\
 	find-contact-by-email\
 	find-contact-by-name\
+	find-contact-by-organisation\
 	find-contact-by-pgpkey\
 	find-contact-by-site\
 	get-contact-emails\
 	get-contact-file\
 	get-contact-gender\
+	get-contact-groups\
 	get-contact-name\
 	get-contact-notes\
 	get-contact-organisations\
 	get-contact-pgpkeys\
 	get-contact-sites\
 	is-contact-ice\
+	list-contact-groups\
+	list-contact-organisations\
 	list-contacts\
+	list-group-contacts\
+	list-organisation-contacts\
 	set-contact-emails\
 	set-contact-gender\
+	set-contact-groups\
 	set-contact-ice\
 	set-contact-name\
 	set-contact-notes\
@@ -60,6 +67,9 @@ find-contact-by-email: find-contact-by-email.o
 find-contact-by-name: find-contact-by-name.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
+find-contact-by-organisation: find-contact-by-organisation.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
+
 find-contact-by-pgpkey: find-contact-by-pgpkey.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
@@ -73,6 +83,9 @@ get-contact-file: get-contact-file.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 get-contact-gender: get-contact-gender.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
+
+get-contact-groups: get-contact-groups.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 get-contact-name: get-contact-name.o
@@ -93,10 +106,16 @@ get-contact-sites: get-contact-sites.o
 is-contact-ice: is-contact-ice.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
+list-contact-groups: list-contact-groups.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
+
 list-contact-organisations: list-contact-organisations.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 list-contacts: list-contacts.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
+
+list-group-contacts: list-group-contacts.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 list-organisation-contacts: list-organisation-contacts.o
@@ -106,6 +125,9 @@ set-contact-emails: set-contact-emails.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 set-contact-gender: set-contact-gender.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
+
+set-contact-groups: set-contact-groups.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 set-contact-ice: set-contact-ice.o

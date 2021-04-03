@@ -1,48 +1,32 @@
 /* See LICENSE file for copyright and license details. */
 #include "common.h"
 
-USAGE("(-f | -m | -o | -u) contact-id ...");
+USAGE("[-u] contact-id ... group");
 
 
 int
 main(int argc, char *argv[])
 {
-	enum libcontacts_gender gender = LIBCONTACTS_UNSPECIFIED_GENDER;
-	int gender_specified = 0, ret = 0;
+	int remove = 0;
 	struct passwd *user;
 	struct libcontacts_contact contact;
+	char *group, **r, **w;
+	int ret = 0;
 	size_t i;
 
 	ARGBEGIN {
-	case 'f':
-		if (gender_specified)
-			usage();
-		gender_specified = 1;
-		gender = LIBCONTACTS_FEMALE;
-		break;
-	case 'm':
-		if (gender_specified)
-			usage();
-		gender_specified = 1;
-		gender = LIBCONTACTS_MALE;
-		break;
-	case 'o':
-		if (gender_specified)
-			usage();
-		gender_specified = 1;
-		gender = LIBCONTACTS_NOT_A_PERSON;
-		break;
 	case 'u':
-		if (gender_specified)
-			usage();
-		gender_specified = 1;
+		remove = 1;
 		break;
 	default:
 		usage();
 	} ARGEND;
 
-	if (!gender_specified || !argc)
+	if (argc < 2)
 		usage();
+
+	group = argv[--argc];
+	argv[argc] = NULL;
 
 	for (i = 0; argv[i]; i++)
 		if (!*argv[i] || strchr(argv[i], '/'))
@@ -59,12 +43,34 @@ main(int argc, char *argv[])
 			ret = 1;
 			continue;
 		}
-		if (contact.gender != gender) {
-			contact.gender = gender;
+		if (contact.groups) {
+			for (i = 0; contact.groups[i]; i++)
+				if (!strcmp(contact.groups[i], group))
+					break;
+			r = &contact.groups[i];
+			if (remove && *r) {
+				free(*r);
+				for (w = r++; *r;)
+					*w++ = *r++;
+				*w = NULL;
+				if (libcontacts_save_contact(&contact, user)) {
+					weprintf("libcontacts_save_contact %s:", *argv);
+					ret = 1;
+				}
+			} else if (!remove && !*r) {
+				goto add_group;
+			}
+		} else if (!remove) {
+			i = 0;
+		add_group:
+			contact.groups = erealloc(contact.groups, (i + 2) * sizeof(*contact.groups));
+			contact.groups[i + 1] = NULL;
+			contact.groups[i] = group;
 			if (libcontacts_save_contact(&contact, user)) {
 				weprintf("libcontacts_save_contact %s:", *argv);
 				ret = 1;
 			}
+			contact.groups[i] = NULL;
 		}
 		libcontacts_contact_destroy(&contact);
 	}

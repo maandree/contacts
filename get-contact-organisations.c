@@ -57,8 +57,10 @@ main(int argc, char *argv[])
 		if (libcontacts_load_contact(*argv, &contact, user)) {
 			weprintf("libcontacts_load_contact %s: %s\n", *argv, errno ? strerror(errno) : "contact file is malformatted");
 			ret = 1;
-		} else {
-			for (orgs = contact.organisations; (org = *orgs); orgs++) {
+			continue;
+		}
+		if ((orgs = contact.organisations)) {
+			for (; (org = *orgs); orgs++) {
 				if (lookup_org && strcmpnul(org->organisation, lookup_org))
 					continue;
 				if (lookup_title && strcmpnul(org->title, lookup_title))
@@ -76,8 +78,8 @@ main(int argc, char *argv[])
 				else
 					printf("%s\n", org->organisation);
 			}
-			libcontacts_contact_destroy(&contact);
 		}
+		libcontacts_contact_destroy(&contact);
 	}
 
 	if (fflush(stdout) || ferror(stdout) || fclose(stdout))

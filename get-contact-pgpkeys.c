@@ -57,8 +57,10 @@ main(int argc, char *argv[])
 		if (libcontacts_load_contact(*argv, &contact, user)) {
 			weprintf("libcontacts_load_contact %s: %s\n", *argv, errno ? strerror(errno) : "contact file is malformatted");
 			ret = 1;
-		} else {
-			for (keys = contact.pgpkeys; (key = *keys); keys++) {
+			continue;
+		}
+		if ((keys = contact.pgpkeys)) {
+			for (; (key = *keys); keys++) {
 				if (lookup_ctx && strcmpnul(key->context, lookup_ctx))
 					continue;
 				if (lookup_id && strcmpnul(key->id, lookup_id))
@@ -76,8 +78,8 @@ main(int argc, char *argv[])
 				else
 					printf("%s\n", key->context);
 			}
-			libcontacts_contact_destroy(&contact);
 		}
+		libcontacts_contact_destroy(&contact);
 	}
 
 	if (fflush(stdout) || ferror(stdout) || fclose(stdout))
