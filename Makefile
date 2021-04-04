@@ -60,8 +60,8 @@ BIN =\
 HDR =\
 	common.h
 
-OBJ = $(BIN:=.o)
-BOBJ = $(BIN:=.bo)
+OBJ = $(BIN:=.o) common-birthday.o
+BOBJ = $(OBJ:.o=.bo)
 
 
 $(OBJ): $(@:.o=.c) $(HDR)
@@ -109,8 +109,8 @@ find-contact-by-photo: find-contact-by-photo.o
 find-contact-by-site: find-contact-by-site.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
-get-contact-birthday: get-contact-birthday.o
-	$(CC) -o $@ $@.o $(LDFLAGS)
+get-contact-birthday: get-contact-birthday.o common-birthday.o
+	$(CC) -o $@ $@.o common-birthday.o $(LDFLAGS)
 
 get-contact-chats: get-contact-chats.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
@@ -151,8 +151,8 @@ get-contact-sites: get-contact-sites.o
 is-contact-ice: is-contact-ice.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
-list-birthdays: list-birthdays.o
-	$(CC) -o $@ $@.o $(LDFLAGS)
+list-birthdays: list-birthdays.o common-birthday.o
+	$(CC) -o $@ $@.o common-birthday.o $(LDFLAGS)
 
 list-chat-contacts: list-chat-contacts.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
