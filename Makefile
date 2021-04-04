@@ -3,6 +3,12 @@
 CONFIGFILE = config.mk
 include $(CONFIGFILE)
 
+CALLTYPE = multicall-hardlinks
+# multicall-hardlinks = multiple hardlinks of the same multicall binary is installed
+# multicall-symlinks  = multiple links to a multicall binary named $(PREFIX)/bin/contacts are installed
+# singlecall          = separate binaries are install for each command (greatly wastes space when statically linked)
+include $(CALLTYPE).mk
+
 
 BIN =\
 	add-contact\
@@ -28,6 +34,7 @@ BIN =\
 	get-contact-photos\
 	get-contact-sites\
 	is-contact-ice\
+	list-birthdays\
 	list-chat-contacts\
 	list-contact-groups\
 	list-contact-organisations\
@@ -36,6 +43,7 @@ BIN =\
 	list-organisation-contacts\
 	print-contact\
 	remove-contact\
+	set-contact-birthday\
 	set-contact-chats\
 	set-contact-emails\
 	set-contact-gender\
@@ -56,7 +64,6 @@ OBJ = $(BIN:=.o)
 BOBJ = $(BIN:=.bo)
 
 
-all: $(BIN) contacts
 $(OBJ): $(@:.o=.c) $(HDR)
 $(BOBJ): $(@:.bo=.c) $(HDR)
 
@@ -64,7 +71,7 @@ $(BOBJ): $(@:.bo=.c) $(HDR)
 	$(CC) -c -o $@ $< $(CFLAGS) $(CPPFLAGS)
 
 .c.bo:
-	$(CC) -c -o $@ $< $(CFLAGS) $(CPPFLAGS) -Dmain="$$(printf '%s\n' $*_main | tr - _)" -DMULTICALL_BINARY
+	$(CC) -c -o $@ $< $(CFLAGS) $(CPPFLAGS) -Dmain="$$(printf '%s\n' main__$* | tr - _)" -DMULTICALL_BINARY
 
 contacts: contacts.o $(BOBJ)
 	$(CC) -o $@ $@.o $(BOBJ) $(LDFLAGS)
@@ -210,30 +217,6 @@ set-contact-photos: set-contact-photos.o
 set-contact-sites: set-contact-sites.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
-install: $(BIN)
-	mkdir -p -- "$(DESTDIR)$(PREFIX)/bin"
-	cp -- $(BIN) "$(DESTDIR)$(PREFIX)/bin/"
-
-install-mcb: contacts
-	mkdir -p -- "$(DESTDIR)$(PREFIX)/bin"
-	set -- $(BIN) &&\
-		cp -- "$$1" "$(DESTDIR)$(PREFIX)/bin/$$1" &&\
-		linkto="$$1" &&\
-		shift 1 &&\
-		cd -- "$(DESTDIR)$(PREFIX)/bin/" &&\
-			for f; do\
-				ln -- "$$linkto" "$$f" || exit 1;\
-			done
-
-install-mcb-symlinks: contacts
-	mkdir -p -- "$(DESTDIR)$(PREFIX)/lib"
-	mkdir -p -- "$(DESTDIR)$(PREFIX)/bin"
-	cp -- contacts "$(DESTDIR)$(PREFIX)/lib/"
-	cd -- "$(DESTDIR)$(PREFIX)/bin/" &&\
-		for f in $(BIN); do\
-			ln -s -- ../lib/contacts "$$f" || exit 1;\
-		done
-
 uninstall:
 	-cd -- "$(DESTDIR)$(PREFIX)/bin" && rm -f -- $(BIN)
 	-rm -f -- "$(DESTDIR)$(PREFIX)/lib/contacts"
@@ -244,4 +227,4 @@ clean:
 .SUFFIXES:
 .SUFFIXES: .c .o .bo
 
-.PHONY: all install install-mcb install-mcb-symlinks uninstall clean
+.PHONY: all install uninstall clean

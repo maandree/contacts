@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define X(NAM) int NAM##_main(int, char *[]);
+#define X(NAM) int main__##NAM(int, char *[]);
 LIST_COMMANDS
 #undef X
 
@@ -21,7 +21,7 @@ main(int argc, char *argv[])
 
 #define X(NAM)\
 	if (!strcmp(name, #NAM))\
-		return NAM##_main(argc, argv);
+		return main__##NAM(argc, argv);
 	LIST_COMMANDS;
 #undef X
 

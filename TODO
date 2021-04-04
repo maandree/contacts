@@ -2,9 +2,6 @@ Add tools for checking context for contact info
 Add tools for .blocks
 Add tools for .addresses
 
-list-birthdays
-set-contact-birthday
-
 Test find-contact-by-chat
 Test find-contact-by-email
 Test find-contact-by-name
@@ -13,7 +10,6 @@ Test find-contact-by-organisation
 Test find-contact-by-pgpkey
 Test find-contact-by-photo
 Test find-contact-by-site
-Test get-contact-birthday
 Test get-contact-chats
 Test get-contact-emails
 Test get-contact-name
@@ -22,7 +18,6 @@ Test get-contact-organisations
 Test get-contact-pgpkeys
 Test get-contact-photos
 Test get-contact-sites
-Test list-birthdays
 Test list-chat-contacts
 Test list-contact-organisations
 Test list-organisation-contacts
