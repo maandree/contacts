@@ -64,10 +64,12 @@ main(int argc, char *argv[])
 		if (before_on_common == 0)
 			usage();
 		before_on_common = 1;
+		break;
 	case 'B':
 		if (before_on_common == 1)
 			usage();
 		before_on_common = 0;
+		break;
 	case 'u':
 		remove = 1;
 		break;
@@ -114,7 +116,7 @@ main(int argc, char *argv[])
 				if (day)
 					contact.birthday->day = day < 0 ? 0 : (unsigned char)day;
 				if (before_on_common >= 0)
-					contact.birthday->before_on_common = before_on_common;
+					contact.birthday->before_on_common = (unsigned char)before_on_common;
 			}
 			if (libcontacts_save_contact(&contact, user)) {
 				weprintf("libcontacts_save_contact %s:", *argv);

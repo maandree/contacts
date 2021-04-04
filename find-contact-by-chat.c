@@ -11,7 +11,7 @@ main(int argc, char *argv[])
 	struct passwd *user;
 	struct libcontacts_contact **contacts;
 	struct libcontacts_chat **chats, *chat;
-	char *context = NULL, *service;
+	char *context = NULL, *service = NULL;
 	size_t i;
 
 	ARGBEGIN {

@@ -4,7 +4,6 @@ Add tools for .addresses
 
 Test find-contact-by-chat
 Test find-contact-by-email
-Test find-contact-by-name
 Test find-contact-by-number
 Test find-contact-by-organisation
 Test find-contact-by-pgpkey
@@ -12,7 +11,6 @@ Test find-contact-by-photo
 Test find-contact-by-site
 Test get-contact-chats
 Test get-contact-emails
-Test get-contact-name
 Test get-contact-numbers
 Test get-contact-organisations
 Test get-contact-pgpkeys

@@ -1,13 +1,11 @@
 .POSIX:
 
 CONFIGFILE = config.mk
-include $(CONFIGFILE)
 
 CALLTYPE = multicall-hardlinks
 # multicall-hardlinks = multiple hardlinks of the same multicall binary is installed
 # multicall-symlinks  = multiple links to a multicall binary named $(PREFIX)/bin/contacts are installed
 # singlecall          = separate binaries are install for each command (greatly wastes space when statically linked)
-include $(CALLTYPE).mk
 
 
 BIN =\
@@ -62,6 +60,10 @@ HDR =\
 
 OBJ = $(BIN:=.o) common-birthday.o
 BOBJ = $(OBJ:.o=.bo)
+
+
+include $(CONFIGFILE)
+include $(CALLTYPE).mk
 
 
 $(OBJ): $(@:.o=.c) $(HDR)

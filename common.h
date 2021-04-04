@@ -14,6 +14,9 @@
 
 
 /* common-birthday.c */
+#if defined(__GNUC__) || defined(__clang__)
+__attribute__((__pure__))
+#endif
 int get_age(struct libcontacts_birthday *bday, const struct tm *now);
 void print_birthdate(struct libcontacts_birthday *bday, const struct tm *now);
 void print_birthday(struct libcontacts_birthday *bday, const struct tm *now);
