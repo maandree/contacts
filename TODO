@@ -1,6 +1,7 @@
 Add tools for checking context for contact info
 Add tools for .blocks
-Add tools for .addresses
+
+set-contact-addresses
 
 Test find-contact-by-chat
 Test find-contact-by-email
@@ -19,6 +20,7 @@ Test get-contact-sites
 Test list-chat-contacts
 Test list-contact-organisations
 Test list-organisation-contacts
+Test set-contact-addresses
 Test set-contact-birthday
 Test set-contact-chats
 Test set-contact-emails

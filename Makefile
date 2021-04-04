@@ -10,6 +10,7 @@ CALLTYPE = multicall-hardlinks
 
 BIN =\
 	add-contact\
+	find-contact-by-address\
 	find-contact-by-chat\
 	find-contact-by-email\
 	find-contact-by-name\
@@ -18,6 +19,7 @@ BIN =\
 	find-contact-by-pgpkey\
 	find-contact-by-photo\
 	find-contact-by-site\
+	get-contact-addresses\
 	get-contact-birthday\
 	get-contact-chats\
 	get-contact-emails\
@@ -58,7 +60,7 @@ BIN =\
 HDR =\
 	common.h
 
-OBJ = $(BIN:=.o) common-birthday.o
+OBJ = $(BIN:=.o) common-birthday.o common-address.o
 BOBJ = $(OBJ:.o=.bo)
 
 
@@ -87,6 +89,9 @@ contacts.c: contacts.c.in Makefile
 add-contact: add-contact.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
+find-contact-by-address: find-contact-by-address.o common-address.o
+	$(CC) -o $@ $@.o common-address.o $(LDFLAGS)
+
 find-contact-by-chat: find-contact-by-chat.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
@@ -110,6 +115,9 @@ find-contact-by-photo: find-contact-by-photo.o
 
 find-contact-by-site: find-contact-by-site.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
+
+get-contact-addresses: get-contact-addresses.o common-address.o
+	$(CC) -o $@ $@.o common-address.o $(LDFLAGS)
 
 get-contact-birthday: get-contact-birthday.o common-birthday.o
 	$(CC) -o $@ $@.o common-birthday.o $(LDFLAGS)
@@ -178,6 +186,9 @@ print-contact: print-contact.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 remove-contact: remove-contact.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
+
+set-contact-addresses: set-contact-addresses.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 set-contact-birthday: set-contact-birthday.o

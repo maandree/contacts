@@ -10,6 +10,7 @@
 /contacts
 /contacts.c
 /add-contact
+/find-contact-by-address
 /find-contact-by-chat
 /find-contact-by-email
 /find-contact-by-name
@@ -18,6 +19,7 @@
 /find-contact-by-pgpkey
 /find-contact-by-photo
 /find-contact-by-site
+/get-contact-addresses
 /get-contact-birthday
 /get-contact-chats
 /get-contact-emails
@@ -41,6 +43,7 @@
 /list-organisation-contacts
 /print-contact
 /remove-contact
+/set-contact-addresses
 /set-contact-birthday
 /set-contact-chats
 /set-contact-emails

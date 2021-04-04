@@ -7,6 +7,8 @@
 #include <libsimple.h>
 #include <libsimple-arg.h>
 
+#include <math.h>
+
 
 #ifndef BUFSIZ
 # define BUFSIZ 4096
@@ -20,3 +22,6 @@ __attribute__((__pure__))
 int get_age(struct libcontacts_birthday *bday, const struct tm *now);
 void print_birthdate(struct libcontacts_birthday *bday, const struct tm *now);
 void print_birthday(struct libcontacts_birthday *bday, const struct tm *now);
+
+/* common-address.c */
+int parse_coord(char *s, double *lat_min, double *lat_max, double *lon_min, double *lon_max);
