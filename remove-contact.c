@@ -24,10 +24,9 @@ main(int argc, char *argv[])
 	if (!path)
 		eprintf("libcontacts_get_path %s:", argv[0]);
 
-	printf("%s\n", path);
+	if (unlink(path))
+		eprintf("unlink %s:", path);
 
-	if (fflush(stdout) || ferror(stdout) || fclose(stdout))
-		eprintf("printf:");
 	free(path);
 	return 0;
 }

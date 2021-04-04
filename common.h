@@ -4,6 +4,11 @@
 #include <libsimple-arg.h>
 
 
+#ifndef BUFSIZ
+# define BUFSIZ 4096
+#endif
+
+
 #ifdef MULTICALL_BINARY
 # undef NUSAGE
 # define NUSAGE(STATUS, SYNOPSIS)\

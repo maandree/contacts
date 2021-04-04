@@ -5,13 +5,16 @@ include $(CONFIGFILE)
 
 
 BIN =\
+	add-contact\
 	find-contact-by-chat\
 	find-contact-by-email\
 	find-contact-by-name\
+	find-contact-by-number\
 	find-contact-by-organisation\
 	find-contact-by-pgpkey\
 	find-contact-by-photo\
 	find-contact-by-site\
+	get-contact-birthday\
 	get-contact-chats\
 	get-contact-emails\
 	get-contact-file\
@@ -19,6 +22,7 @@ BIN =\
 	get-contact-groups\
 	get-contact-name\
 	get-contact-notes\
+	get-contact-numbers\
 	get-contact-organisations\
 	get-contact-pgpkeys\
 	get-contact-photos\
@@ -30,6 +34,8 @@ BIN =\
 	list-contacts\
 	list-group-contacts\
 	list-organisation-contacts\
+	print-contact\
+	remove-contact\
 	set-contact-chats\
 	set-contact-emails\
 	set-contact-gender\
@@ -37,6 +43,7 @@ BIN =\
 	set-contact-ice\
 	set-contact-name\
 	set-contact-notes\
+	set-contact-numbers\
 	set-contact-organisations\
 	set-contact-pgpkeys\
 	set-contact-photos\
@@ -68,6 +75,9 @@ contacts.c: contacts.c.in Makefile
 	printf '\n\n' >> $@
 	cat contacts.c.in >> $@
 
+add-contact: add-contact.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
+
 find-contact-by-chat: find-contact-by-chat.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
@@ -75,6 +85,9 @@ find-contact-by-email: find-contact-by-email.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 find-contact-by-name: find-contact-by-name.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
+
+find-contact-by-number: find-contact-by-number.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 find-contact-by-organisation: find-contact-by-organisation.o
@@ -87,6 +100,9 @@ find-contact-by-photo: find-contact-by-photo.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 find-contact-by-site: find-contact-by-site.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
+
+get-contact-birthday: get-contact-birthday.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 get-contact-chats: get-contact-chats.o
@@ -110,6 +126,9 @@ get-contact-name: get-contact-name.o
 get-contact-notes: get-contact-notes.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
+get-contact-numbers: get-contact-numbers.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
+
 get-contact-organisations: get-contact-organisations.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
@@ -123,6 +142,9 @@ get-contact-sites: get-contact-sites.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 is-contact-ice: is-contact-ice.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
+
+list-birthdays: list-birthdays.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 list-chat-contacts: list-chat-contacts.o
@@ -141,6 +163,15 @@ list-group-contacts: list-group-contacts.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 list-organisation-contacts: list-organisation-contacts.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
+
+print-contact: print-contact.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
+
+remove-contact: remove-contact.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
+
+set-contact-birthday: set-contact-birthday.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 set-contact-chats: set-contact-chats.o
@@ -162,6 +193,9 @@ set-contact-name: set-contact-name.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 set-contact-notes: set-contact-notes.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
+
+set-contact-numbers: set-contact-numbers.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 set-contact-organisations: set-contact-organisations.o
