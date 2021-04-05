@@ -1,7 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 #include "common.h"
 
-USAGE("[-c context] [-C local-country-calling-code] [-D address-book-country-calling-code] [-F | -f] [-M | -m] [-t] (-L | number)");
+USAGE("[-a address-book-country-calling-code] [-l local-country-calling-code] [-c context] [-F | -f] [-M | -m] [-t] (-L | number)");
 
 
 int
@@ -11,24 +11,24 @@ main(int argc, char *argv[])
 	struct passwd *user;
 	struct libcontacts_contact **contacts;
 	struct libcontacts_number **numbers, *number;
-	char *context = NULL, *cc_contacts = NULL, *cc_location = NULL;
+	const char *context = NULL, *cc_contacts = NULL, *cc_location = NULL;
 	size_t i;
 
 	ARGBEGIN {
-	case 'c':
-		if (context)
+	case 'a':
+		if (cc_contacts)
 			usage();
-		context = ARG();
+		cc_contacts = ARG();
 		break;
-	case 'C':
+	case 'l':
 		if (cc_location)
 			usage();
 		cc_location = ARG();
 		break;
-	case 'D':
-		if (cc_contacts)
+	case 'c':
+		if (context)
 			usage();
-		cc_contacts = ARG();
+		context = ARG();
 		break;
 	case 'F':
 		if (require_fax >= 0)

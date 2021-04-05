@@ -71,7 +71,7 @@ main(int argc, char *argv[])
 				}
 				if (argc > 1)
 					printf("%s: ", *argv);
-				if (display_ctx && display_id)
+				if (!display_ctx == !display_id)
 					printf("%s: %s\n", key->context, key->id);
 				else if (display_id)
 					printf("%s\n", key->id);

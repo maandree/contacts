@@ -71,7 +71,7 @@ main(int argc, char *argv[])
 				}
 				if (argc > 1)
 					printf("%s: ", *argv);
-				if (display_org && display_title)
+				if (!display_org == !display_title)
 					printf("%s: %s\n", org->organisation, org->title);
 				else if (display_title)
 					printf("%s\n", org->title);

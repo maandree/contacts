@@ -71,7 +71,7 @@ main(int argc, char *argv[])
 				}
 				if (argc > 1)
 					printf("%s: ", *argv);
-				if (display_ctx && display_addr)
+				if (!display_ctx == !display_addr)
 					printf("%s: %s\n", email->context, email->address);
 				else if (display_addr)
 					printf("%s\n", email->address);
