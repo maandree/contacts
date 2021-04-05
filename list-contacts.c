@@ -1,18 +1,19 @@
 /* See LICENSE file for copyright and license details. */
 #include "common.h"
 
-USAGE("[-efmnou]");
+USAGE("[-efmnou] [(-b service | -B service) [-g]]");
 
 
 int
 main(int argc, char *argv[])
 {
-	int names = 0, emergency = 0;
+	int names = 0, emergency = 0, check_global_blocks = 0;
 	int include_men = 0, include_women = 0, include_orgs = 0, include_unspec = 0;
+	const char *blocked_on = NULL, *unblocked_on = NULL, *service = NULL;
 	struct passwd *user;
-	struct libcontacts_contact **contacts;
+	struct libcontacts_contact **contacts, *contact;
 	char **ids;
-	size_t i;
+	size_t i, j;
 
 	ARGBEGIN {
 	case 'e':
@@ -33,11 +34,24 @@ main(int argc, char *argv[])
 	case 'u':
 		include_unspec = 1;
 		break;
+	case 'g':
+		check_global_blocks = 1;
+		break;
+	case 'b':
+		if (service)
+			usage();
+		service = blocked_on = ARG();
+		break;
+	case 'B':
+		if (service)
+			usage();
+		service = unblocked_on = ARG();
+		break;
 	default:
 		usage();
 	} ARGEND;
 
-	if (argc)
+	if (argc || (check_global_blocks && !service))
 		usage();
 
 	errno = 0;
@@ -58,21 +72,36 @@ main(int argc, char *argv[])
 			include_men = include_women = include_orgs = include_unspec = 1;
 		if (libcontacts_load_contacts(&contacts, user))
 			eprintf("libcontacts_load_contacts:");
-		for (i = 0; contacts[i]; i++) {
-			if (emergency && !contacts[i]->in_case_of_emergency)
+		for (i = 0; (contact = contacts[i]); i++) {
+			if (emergency && !contact->in_case_of_emergency)
 				continue;
-			if      (include_men    && contacts[i]->gender == LIBCONTACTS_MALE);
-			else if (include_women  && contacts[i]->gender == LIBCONTACTS_FEMALE);
-			else if (include_orgs   && contacts[i]->gender == LIBCONTACTS_NOT_A_PERSON);
-			else if (include_unspec && contacts[i]->gender == LIBCONTACTS_UNSPECIFIED_GENDER);
+			if      (include_men    && contact->gender == LIBCONTACTS_MALE);
+			else if (include_women  && contact->gender == LIBCONTACTS_FEMALE);
+			else if (include_orgs   && contact->gender == LIBCONTACTS_NOT_A_PERSON);
+			else if (include_unspec && contact->gender == LIBCONTACTS_UNSPECIFIED_GENDER);
 			else
 				continue;
-			if (names && contacts[i]->name)
-				printf("%s (%s)\n", contacts[i]->id, contacts[i]->name);
+			if (service && !contact->blocks) {
+				if (blocked_on)
+					continue;
+			} else if (service) {
+				for (j = 0; contact->blocks[j]; j++) {
+					if (!contact->blocks[j]->service)
+						continue;
+					if (!strcmp(contact->blocks[j]->service, service))
+						break;
+					if (check_global_blocks && !strcmp(contact->blocks[j]->service, ".global"))
+						break;
+				}
+				if (!blocked_on == !contact->blocks[j])
+					continue;
+			}
+			if (names && contact->name)
+				printf("%s (%s)\n", contact->id, contact->name);
 			else
-				printf("%s\n", contacts[i]->id);
-			libcontacts_contact_destroy(contacts[i]);
-			free(contacts[i]);
+				printf("%s\n", contact->id);
+			libcontacts_contact_destroy(contact);
+			free(contact);
 		}
 		free(contacts);
 	}

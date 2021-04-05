@@ -1,5 +1,3 @@
-update list-contacts to handle block status
-
 Test find-contact-by-chat
 Test find-contact-by-email
 Test find-contact-by-number
