@@ -21,6 +21,7 @@ BIN =\
 	find-contact-by-site\
 	get-contact-addresses\
 	get-contact-birthday\
+	get-contact-blocks\
 	get-contact-chats\
 	get-contact-emails\
 	get-contact-file\
@@ -45,6 +46,7 @@ BIN =\
 	remove-contact\
 	set-contact-addresses\
 	set-contact-birthday\
+	set-contact-blocks\
 	set-contact-chats\
 	set-contact-emails\
 	set-contact-gender\
@@ -56,7 +58,8 @@ BIN =\
 	set-contact-organisations\
 	set-contact-pgpkeys\
 	set-contact-photos\
-	set-contact-sites
+	set-contact-sites\
+	unblock-contact
 
 HDR =\
 	common.h
@@ -122,6 +125,9 @@ get-contact-addresses: get-contact-addresses.o common-address.o
 
 get-contact-birthday: get-contact-birthday.o common-birthday.o
 	$(CC) -o $@ $@.o common-birthday.o $(LDFLAGS)
+
+get-contact-blocks: get-contact-blocks.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
 
 get-contact-chats: get-contact-chats.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
@@ -195,6 +201,9 @@ set-contact-addresses: set-contact-addresses.o common-address.o
 set-contact-birthday: set-contact-birthday.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
+set-contact-blocks: set-contact-blocks.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
+
 set-contact-chats: set-contact-chats.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
@@ -229,6 +238,9 @@ set-contact-photos: set-contact-photos.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 set-contact-sites: set-contact-sites.o
+	$(CC) -o $@ $@.o $(LDFLAGS)
+
+unblock-contact: unblock-contact.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
 uninstall:

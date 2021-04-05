@@ -1,4 +1,4 @@
-Add tools for .blocks
+update list-contacts to handle block status
 
 Test find-contact-by-chat
 Test find-contact-by-email
@@ -7,6 +7,7 @@ Test find-contact-by-organisation
 Test find-contact-by-pgpkey
 Test find-contact-by-photo
 Test find-contact-by-site
+Test get-contact-blocks
 Test get-contact-chats
 Test get-contact-emails
 Test get-contact-numbers
@@ -19,6 +20,7 @@ Test list-contact-organisations
 Test list-organisation-contacts
 Test set-contact-addresses
 Test set-contact-birthday
+Test set-contact-blocks
 Test set-contact-chats
 Test set-contact-emails
 Test set-contact-groups
@@ -28,6 +30,7 @@ Test set-contact-organisations
 Test set-contact-pgpkeys
 Test set-contact-photos
 Test set-contact-sites
+Test unblock-contact
 Add ability to filter on unset values in entries
 Add ability to remove values in entries
 Add man pages

@@ -24,4 +24,4 @@ void print_birthdate(struct libcontacts_birthday *bday, const struct tm *now);
 void print_birthday(struct libcontacts_birthday *bday, const struct tm *now);
 
 /* common-address.c */
-int parse_coord(char *s, double *lat, double *lat_min, double *lat_max, double *lon, double *lon_min, double *lon_max);
+int parse_coord(const char *s, double *lat, double *lat_min, double *lat_max, double *lon, double *lon_min, double *lon_max);

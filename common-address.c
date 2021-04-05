@@ -3,7 +3,7 @@
 
 
 int
-parse_coord(char *s, double *lat, double *lat_min, double *lat_max, double *lon, double *lon_min, double *lon_max)
+parse_coord(const char *s, double *lat, double *lat_min, double *lat_max, double *lon, double *lon_min, double *lon_max)
 {
         int withsign = 0, neg;
 	long int tmp;
@@ -22,7 +22,7 @@ parse_coord(char *s, double *lat, double *lat_min, double *lat_max, double *lon,
 		s = &s[withsign];
 		tmp = 0;
 		if (isdigit(s[withsign])) {
-			tmp = strtol(s, &s, 0);
+			tmp = strtol(s, (void *)&s, 0);
 			if (errno || tmp > INT_MAX)
 				return -1;
 		}
@@ -61,7 +61,7 @@ parse_coord(char *s, double *lat, double *lat_min, double *lat_max, double *lon,
 		s = &s[withsign];
 		tmp = 0;
 		if (isdigit(s[withsign])) {
-			tmp = strtol(s, &s, 0);
+			tmp = strtol(s, (void *)&s, 0);
 			if (errno || tmp > INT_MAX)
 				return -1;
 		}

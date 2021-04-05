@@ -21,6 +21,7 @@
 /find-contact-by-site
 /get-contact-addresses
 /get-contact-birthday
+/get-contact-blocks
 /get-contact-chats
 /get-contact-emails
 /get-contact-file
@@ -45,6 +46,7 @@
 /remove-contact
 /set-contact-addresses
 /set-contact-birthday
+/set-contact-blocks
 /set-contact-chats
 /set-contact-emails
 /set-contact-gender
@@ -57,3 +59,4 @@
 /set-contact-pgpkeys
 /set-contact-photos
 /set-contact-sites
+/unblock-contact
