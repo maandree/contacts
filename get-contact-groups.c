@@ -8,9 +8,9 @@ int
 main(int argc, char *argv[])
 {
 	int lookup_unassigned = 0;
+	char *lookup_group = NULL;
 	struct passwd *user;
 	struct libcontacts_contact contact;
-	char *lookup_group = NULL;
 	char **groups;
 	int ret = 0;
 	size_t i;

@@ -7,10 +7,11 @@ USAGE("[-F | -f | -l | n] contact-id ...");
 int
 main(int argc, char *argv[])
 {
+	size_t offset = 0;
 	struct passwd *user;
 	struct libcontacts_contact contact;
 	int ret = 0;
-	size_t i, offset = 0;
+	size_t i;
 	char *name;
 
 	ARGBEGIN {

@@ -8,10 +8,10 @@ int
 main(int argc, char *argv[])
 {
 	int display_ctx = 0, display_id = 0;
+	const char *lookup_ctx = NULL, *lookup_id = NULL;
 	struct passwd *user;
 	struct libcontacts_contact contact;
 	struct libcontacts_pgpkey **keys, *key;
-	const char *lookup_ctx = NULL, *lookup_id = NULL;
 	int ret = 0;
 	size_t i;
 

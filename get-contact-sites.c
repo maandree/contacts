@@ -8,10 +8,10 @@ int
 main(int argc, char *argv[])
 {
 	int display_ctx = 0, display_addr = 0;
+	const char *lookup_ctx = NULL, *lookup_addr = NULL;
 	struct passwd *user;
 	struct libcontacts_contact contact;
 	struct libcontacts_site **sites, *site;
-	const char *lookup_ctx = NULL, *lookup_addr = NULL;
 	int ret = 0;
 	size_t i;
 

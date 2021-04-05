@@ -10,11 +10,11 @@ main(int argc, char *argv[])
 {
 	int display_ctx = 0, display_num = 0, display_type = 0;
 	int require_mobile = -1, require_fax = -1;
+	const char *lookup_ctx = NULL, *lookup_num = NULL;
+	const char *cc_contacts = NULL, *cc_location = NULL;
 	struct passwd *user;
 	struct libcontacts_contact contact;
 	struct libcontacts_number **numbers, *number;
-	const char *lookup_ctx = NULL, *lookup_num = NULL;
-	const char *cc_contacts = NULL, *cc_location = NULL;
 	int ret = 0;
 	size_t i;
 
