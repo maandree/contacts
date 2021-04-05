@@ -19,8 +19,8 @@ main(int argc, char *argv[])
 	int edit_address = 0, edit_context = 0, edit_location = 0;
 	int edit_country = 0, edit_careof = 0, edit_postcode = 0;
 	int edit_city = 0, edit = 0, remove = 0;
-	char *address = NULL, *context = NULL, *location = NULL;
-	char *country = NULL, *careof = NULL, *postcode = NULL, *city = NULL;
+	const char *address = NULL, *context = NULL, *location = NULL;
+	const char *country = NULL, *careof = NULL, *postcode = NULL, *city = NULL;
 	double lat, lon, lat_min = 0, lat_max = 0, lon_min = 0, lon_max = 0, flat, flon;
 	struct passwd *user;
 	struct libcontacts_contact contact;
@@ -221,7 +221,7 @@ main(int argc, char *argv[])
 		i = naddresses;
 		contact.addresses = erealloc(contact.addresses, (i + 2) * sizeof(*contact.addresses));
 		contact.addresses[i + 1] = NULL;
-		contact.addresses[i] = ecalloc(1, sizeof(**contact.emails));
+		contact.addresses[i] = ecalloc(1, sizeof(**contact.addresses));
 		contact.addresses[i]->context  = context  ? estrdup(context)  : NULL;
 		contact.addresses[i]->care_of  = careof   ? estrdup(careof)   : NULL;
 		contact.addresses[i]->address  = address  ? estrdup(address)  : NULL;
