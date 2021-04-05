@@ -43,6 +43,7 @@ BIN =\
 	list-organisation-contacts\
 	print-contact\
 	remove-contact\
+	set-contact-addresses\
 	set-contact-birthday\
 	set-contact-chats\
 	set-contact-emails\
@@ -188,8 +189,8 @@ print-contact: print-contact.o
 remove-contact: remove-contact.o
 	$(CC) -o $@ $@.o $(LDFLAGS)
 
-set-contact-addresses: set-contact-addresses.o
-	$(CC) -o $@ $@.o $(LDFLAGS)
+set-contact-addresses: set-contact-addresses.o common-address.o
+	$(CC) -o $@ $@.o common-address.o $(LDFLAGS)
 
 set-contact-birthday: set-contact-birthday.o
 	$(CC) -o $@ $@.o $(LDFLAGS)

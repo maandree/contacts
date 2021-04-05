@@ -1,19 +1,19 @@
 /* See LICENSE file for copyright and license details. */
 #include "common.h"
 
-USAGE("[-a address] [-c context] [-g [latitude]:[longitude]] [-l country] [-o care-of] [-p post-code] [-t city]");
+USAGE("[-a address] [-c context] [-g [latitude]:[longitude]] [-n country] [-o care-of] [-p post-code] [-t city]");
 
 
 int
 main(int argc, char *argv[])
 {
-	struct passwd *user;
-	struct libcontacts_contact **contacts;
-	struct libcontacts_address **addresses, *addr;
 	char *lookup_addr = NULL, *lookup_ctx = NULL, *lookup_loc = NULL;
 	char *lookup_country = NULL, *lookup_careof = NULL;
 	char *lookup_postcode = NULL, *lookup_city = NULL;
 	double lat, lon, lat_min = 0, lat_max = 0, lon_min = 0, lon_max = 0;
+	struct passwd *user;
+	struct libcontacts_contact **contacts;
+	struct libcontacts_address **addresses, *addr;
 	size_t i;
 
 	ARGBEGIN {
@@ -42,7 +42,7 @@ main(int argc, char *argv[])
 			usage();
 		lookup_city = ARG();
 		break;
-	case 'l':
+	case 'n':
 		if (lookup_country)
 			usage();
 		lookup_country = ARG();
@@ -51,7 +51,7 @@ main(int argc, char *argv[])
 		if (lookup_loc)
 			usage();
 		lookup_loc = ARG();
-		if (parse_coord(lookup_loc, &lat_min, &lat_max, &lon_min, &lon_max))
+		if (parse_coord(lookup_loc, &lat, &lat_min, &lat_max, &lon, &lon_min, &lon_max))
 			usage();
 		break;
 	default:

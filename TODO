@@ -1,8 +1,6 @@
 Add tools for checking context for contact info
 Add tools for .blocks
 
-set-contact-addresses
-
 Test find-contact-by-chat
 Test find-contact-by-email
 Test find-contact-by-number
@@ -31,6 +29,8 @@ Test set-contact-organisations
 Test set-contact-pgpkeys
 Test set-contact-photos
 Test set-contact-sites
+Add ability to filter on unset values in entries
+Add ability to remove values in entries
 Add man pages
 Add readme
 Add tests
