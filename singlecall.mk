@@ -1,10 +1,5 @@
 all: $(BIN)
 
-install: contacts
-	mkdir -p -- "$(DESTDIR)$(PREFIX)/lib"
+install: $(BIN)
 	mkdir -p -- "$(DESTDIR)$(PREFIX)/bin"
-	cp -- contacts "$(DESTDIR)$(PREFIX)/lib/"
-	cd -- "$(DESTDIR)$(PREFIX)/bin/" &&\
-		for f in $(BIN); do\
-			ln -s -- ../lib/contacts "$$f" || exit 1;\
-		done
+	cp -- $(BIN) "$(DESTDIR)$(PREFIX)/bin/"
