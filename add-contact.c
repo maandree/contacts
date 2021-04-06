@@ -21,6 +21,10 @@ main(int argc, char *argv[])
 	user = getpwuid(getuid());
 	if (!user)
 		eprintf("getpwuid: %s\n", errno ? strerror(errno) : "user does not exist");
+	if (!user->pw_dir || !*user->pw_dir)
+		eprintf("user does not have a home directory\n");
+	if (access(user->pw_dir, R_OK | W_OK | X_OK))
+		eprintf("access %s R_OK|W_OK|X_OK:", user->pw_dir);
 
 	if (argc) {
 		path = libcontacts_get_path(argv[0], user);
