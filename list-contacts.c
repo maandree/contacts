@@ -74,16 +74,16 @@ main(int argc, char *argv[])
 			eprintf("libcontacts_load_contacts:");
 		for (i = 0; (contact = contacts[i]); i++) {
 			if (emergency && !contact->in_case_of_emergency)
-				continue;
+				goto next;
 			if      (include_men    && contact->gender == LIBCONTACTS_MALE);
 			else if (include_women  && contact->gender == LIBCONTACTS_FEMALE);
 			else if (include_orgs   && contact->gender == LIBCONTACTS_NOT_A_PERSON);
 			else if (include_unspec && contact->gender == LIBCONTACTS_UNSPECIFIED_GENDER);
 			else
-				continue;
+				goto next;
 			if (service && !contact->blocks) {
 				if (blocked_on)
-					continue;
+					goto next;
 			} else if (service) {
 				for (j = 0; contact->blocks[j]; j++) {
 					if (!contact->blocks[j]->service)
@@ -94,12 +94,13 @@ main(int argc, char *argv[])
 						break;
 				}
 				if (!blocked_on == !contact->blocks[j])
-					continue;
+					goto next;
 			}
 			if (names && contact->name)
 				printf("%s (%s)\n", contact->id, contact->name);
 			else
 				printf("%s\n", contact->id);
+		next:
 			libcontacts_contact_destroy(contact);
 			free(contact);
 		}
