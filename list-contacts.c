@@ -59,7 +59,7 @@ main(int argc, char *argv[])
 	if (!user)
 		eprintf("getpwuid: %s\n", errno ? strerror(errno) : "user does not exist");
 
-	if (!names && !emergency && !include_men && !include_women && !include_orgs && !include_unspec) {
+	if (!names && !emergency && !include_men && !include_women && !include_orgs && !include_unspec && !service) {
 		if (libcontacts_list_contacts(&ids, user))
 			eprintf("libcontacts_list_contacts:");
 		for (i = 0; ids[i]; i++) {
@@ -93,7 +93,7 @@ main(int argc, char *argv[])
 					if (check_global_blocks && !strcmp(contact->blocks[j]->service, ".global"))
 						break;
 				}
-				if (!blocked_on == !contact->blocks[j])
+				if (!blocked_on != !contact->blocks[j])
 					goto next;
 			}
 			if (names && contact->name)
