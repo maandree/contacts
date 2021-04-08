@@ -60,7 +60,7 @@ main(int argc, char *argv[])
 		eprintf("getpwuid: %s\n", errno ? strerror(errno) : "user does not exist");
 
 	if (!names && !emergency && !include_men && !include_women && !include_orgs && !include_unspec && !service) {
-		if (libcontacts_list_contacts(&ids, user))
+		if (libcontacts_list_contacts(&ids, user, 0))
 			eprintf("libcontacts_list_contacts:");
 		for (i = 0; ids[i]; i++) {
 			printf("%s\n", ids[i]);
@@ -70,7 +70,7 @@ main(int argc, char *argv[])
 	} else {
 		if (!include_men && !include_women && !include_orgs && !include_unspec)
 			include_men = include_women = include_orgs = include_unspec = 1;
-		if (libcontacts_load_contacts(&contacts, user))
+		if (libcontacts_load_contacts(&contacts, user, 0))
 			eprintf("libcontacts_load_contacts:");
 		for (i = 0; (contact = contacts[i]); i++) {
 			if (emergency && !contact->in_case_of_emergency)

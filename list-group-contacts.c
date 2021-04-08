@@ -20,7 +20,7 @@ main(int argc, char *argv[])
 	if (!user)
 		eprintf("getpwuid: %s\n", errno ? strerror(errno) : "user does not exist");
 
-	if (libcontacts_load_contacts(&contacts, user))
+	if (libcontacts_load_contacts(&contacts, user, 0))
 		eprintf("libcontacts_load_contacts:");
 	for (i = 0; contacts[i]; i++) {
 		if ((groups = contacts[i]->groups)) {

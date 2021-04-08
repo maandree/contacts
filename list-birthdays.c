@@ -96,7 +96,7 @@ main(int argc, char *argv[])
 		eprintf("localtime:");
 
 	if (list) {
-		if (libcontacts_load_contacts(&contacts, user))
+		if (libcontacts_load_contacts(&contacts, user, 0))
 			eprintf("libcontacts_load_contacts:");
 		for (i = 0; contacts[i]; i++);
 	} else {

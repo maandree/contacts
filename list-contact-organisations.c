@@ -83,7 +83,7 @@ main(int argc, char *argv[])
 		eprintf("getpwuid: %s\n", errno ? strerror(errno) : "user does not exist");
 
 	if (list) {
-		if (libcontacts_load_contacts(&contacts, user))
+		if (libcontacts_load_contacts(&contacts, user, 0))
 			eprintf("libcontacts_load_contacts:");
 		for (i = 0; contacts[i]; i++) {
 			list_orgs(contacts[i], title);
