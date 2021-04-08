@@ -1,0 +1,6 @@
+NAME
+	contacts - A collection of utilities for inspecting and manipulating your contact list
+
+DESCRIPTION
+	contacts is a collection of utilities that inspects and manipulate the user's
+	libcontacts compatible list of contacts.
