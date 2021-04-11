@@ -1,14 +1,16 @@
 /* See LICENSE file for copyright and license details. */
 #include "common.h"
 
-USAGE("[-C old-context] [-c new-context] [-N old-number] [-n new-number] [-F | -f] [-M | -m] [-u] contact-id");
+USAGE("[-C old-context] [-N old-number] [-F | -f] [-M | -m] ([-c new-context] [-n new-number] | -u) contact-id");
 
 
 int
 main(int argc, char *argv[])
 {
 	int set_facsimile = -1, set_mobile = -1, add = 1, edit = 0, remove = 0;
-	const char *context, *number, *lookup_context, *lookup_number;
+	char *context = NULL, *number = NULL;
+	char *lookup_context = NULL, *lookup_number = NULL;
+	char *old_context = NULL, *old_number = NULL;
 	struct passwd *user;
 	struct libcontacts_contact contact;
 	struct libcontacts_number **r, **w;
@@ -68,7 +70,7 @@ main(int argc, char *argv[])
 
 	if (remove == edit) {
 		if (edit)
-			eprintf("-u cannot be combined with -cn\n");
+			usage();
 		eprintf("at least one of -cnu is required\n");
 	}
 
@@ -101,12 +103,12 @@ main(int argc, char *argv[])
 			for (w = r++; (*w++ = *r++););
 		} else if (*r) {
 			if (context) {
-				free(contact.numbers[i]->context);
-				contact.numbers[i]->context = estrdup(context);
+				old_context = contact.numbers[i]->context;
+				contact.numbers[i]->context = context;
 			}
 			if (number) {
-				free(contact.numbers[i]->number);
-				contact.numbers[i]->number = estrdup(number);
+				old_number = contact.numbers[i]->number;
+				contact.numbers[i]->number = number;
 			}
 			if (set_mobile >= 0)
 				contact.numbers[i]->is_mobile = set_mobile;
@@ -122,14 +124,17 @@ main(int argc, char *argv[])
 		contact.numbers = erealloc(contact.numbers, (i + 2) * sizeof(*contact.numbers));
 		contact.numbers[i + 1] = NULL;
 		contact.numbers[i] = ecalloc(1, sizeof(**contact.numbers));
-		contact.numbers[i]->context = estrdup(argv[1]);
-		contact.numbers[i]->number = estrdup(argv[2]);
+		contact.numbers[i]->context = context;
+		contact.numbers[i]->number = number;
 		contact.numbers[i]->is_mobile = set_mobile > 0;
 		contact.numbers[i]->is_facsimile = set_facsimile > 0;
 	}
 
 	if (libcontacts_save_contact(&contact, user))
 		eprintf("libcontacts_save_contact %s:", argv[0]);
+
+	contact.numbers[i]->context = old_context;
+	contact.numbers[i]->number = old_number;
 	libcontacts_contact_destroy(&contact);
 
 	return 0;

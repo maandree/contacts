@@ -1,42 +1,63 @@
 /* See LICENSE file for copyright and license details. */
 #include "common.h"
 
-USAGE("[-a | -c] contact-id context address | -u contact-id context [address] | -U contact-id [context] address");
+USAGE("[-A old-address] [-C old-context] ([-a new-adress] [-c new-context] | -u) contact-id");
 
 
 int
 main(int argc, char *argv[])
 {
-	int update_address = 0, update_context = 0;
-	int remove_by_context = 0, remove_by_address = 0;
-	int edit;
+	int add = 1, edit = 0, remove = 0;
+	char *address = NULL, *context = NULL;
+	char *lookup_address = NULL, *lookup_context = NULL;
+	char *old_address = NULL, *old_context = NULL;
 	struct passwd *user;
 	struct libcontacts_contact contact;
 	struct libcontacts_site **r, **w;
 	size_t i;
 
 	ARGBEGIN {
+	case 'A':
+		add = 0;
+		if (lookup_address)
+			usage();
+		lookup_address = ARG();
+		break;
 	case 'a':
-		update_address = 1;
+		edit = 1;
+		if (address)
+			usage();
+		address = ARG();
+		break;
+	case 'C':
+		add = 0;
+		if (lookup_context)
+			usage();
+		lookup_context = ARG();
 		break;
 	case 'c':
-		update_context = 1;
+		edit = 1;
+		if (context)
+			usage();
+		context = ARG();
 		break;
 	case 'u':
-		remove_by_context = 1;
-		break;
-	case 'U':
-		remove_by_address = 1;
+		remove = 1;
 		break;
 	default:
 		usage();
 	} ARGEND;
 
-	edit = update_address + update_context + remove_by_context + remove_by_address;
-	if (edit > 1 || argc < 3 - remove_by_context - remove_by_address || argc > 3)
-		usage();
+	if (remove == edit) {
+		if (edit)
+			usage();
+		eprintf("at least one of -acu is required\n");
+	}
 
-	if (!*argv[0] || strchr(argv[0], '/'))
+	if (add)
+		edit = 0;
+
+	if (argc != 1 || !*argv[0] || strchr(argv[0], '/'))
 		usage();
 
 	errno = 0;
@@ -48,57 +69,46 @@ main(int argc, char *argv[])
 		eprintf("libcontacts_load_contact %s: %s\n", argv[0], errno ? strerror(errno) : "contact file is malformatted");
 
 	i = 0;
-	if (contact.sites) {
-		if (!edit) {
-			for (; contact.sites[i]; i++);
-		} else if (update_address) {
-			for (; contact.sites[i]; i++) {
-				if (!strcmpnul(contact.sites[i]->context, argv[1])) {
-					free(contact.sites[i]->address);
-					contact.sites[i]->address = estrdup(argv[2]);
-					goto save;
-				}
-			}
-		} else if (update_context) {
-			for (; contact.sites[i]; i++) {
-				if (!strcmpnul(contact.sites[i]->address, argv[2])) {
-					free(contact.sites[i]->context);
-					contact.sites[i]->context = estrdup(argv[1]);
-					goto save;
-				}
-			}
-		} else if (argc == 3) {
-			for (; contact.sites[i]; i++)
-				if (!strcmpnul(contact.sites[i]->context, argv[1]))
-					if (!strcmpnul(contact.sites[i]->address, argv[2]))
-						break;
-		} else if (remove_by_context) {
-			for (; contact.sites[i]; i++)
-				if (!strcmpnul(contact.sites[i]->context, argv[1]))
-					break;
-		} else {
-			for (; contact.sites[i]; i++)
-				if (!strcmpnul(contact.sites[i]->address, argv[1]))
-					break;
+	if ((edit || remove) && contact.sites) {
+		for (r = contact.sites; *r; r++) {
+			if (lookup_context && strcmpnul((*r)->context, lookup_context))
+				continue;
+			if (lookup_address && strcmpnul((*r)->context, lookup_address))
+				continue;
+			break;
 		}
-	}
-	if (!edit || update_address || update_context) {
+		if (!edit) {
+			libcontacts_site_destroy(*r);
+			free(*r);
+			for (w = r++; (*w++ = *r++););
+		} else if (*r) {
+			if (context) {
+				old_context = contact.sites[i]->context;
+				contact.sites[i]->context = context;
+			}
+			if (address) {
+				old_address = contact.sites[i]->address;
+				contact.sites[i]->address = address;
+			}
+		} else {
+			libcontacts_contact_destroy(&contact);
+			return 0;
+		}
+	} else if (!edit && !remove) {
+		if (contact.sites)
+			for (i = 0; contact.sites[i]; i++);
 		contact.sites = erealloc(contact.sites, (i + 2) * sizeof(*contact.sites));
 		contact.sites[i + 1] = NULL;
 		contact.sites[i] = ecalloc(1, sizeof(**contact.sites));
-		contact.sites[i]->context = estrdup(argv[1]);
-		contact.sites[i]->address = estrdup(argv[2]);
-	} else if (contact.sites && contact.sites[i]) {
-		libcontacts_site_destroy(contact.sites[i]);
-		free(contact.sites[i]);
-		for (r = &1[w = &contact.sites[i]]; *r;)
-			*w++ = *r++;
-		*w = NULL;
+		contact.sites[i]->context = context;
+		contact.sites[i]->address = address;
 	}
 
-save:
 	if (libcontacts_save_contact(&contact, user))
 		eprintf("libcontacts_save_contact %s:", argv[0]);
+
+	contact.sites[i]->context = old_context;
+	contact.sites[i]->address = old_address;
 	libcontacts_contact_destroy(&contact);
 
 	return 0;

@@ -1,42 +1,63 @@
 /* See LICENSE file for copyright and license details. */
 #include "common.h"
 
-USAGE("[-o | -t] contact-id organisation title | -u contact-id organisation [title] | -U contact-id [organisation] title");
+USAGE("[-O old-organisation] [-T old-title] ([-o new-adress] [-t new-title] | -u) contact-id");
 
 
 int
 main(int argc, char *argv[])
 {
-	int update_title = 0, update_organisation = 0;
-	int remove_by_organisation = 0, remove_by_title = 0;
-	int edit;
+	int add = 1, edit = 0, remove = 0;
+	char *organisation = NULL, *title = NULL;
+	char *lookup_organisation = NULL, *lookup_title = NULL;
+	char *old_organisation = NULL, *old_title = NULL;
 	struct passwd *user;
 	struct libcontacts_contact contact;
 	struct libcontacts_organisation **r, **w;
 	size_t i;
 
 	ARGBEGIN {
+	case 'O':
+		add = 0;
+		if (lookup_organisation)
+			usage();
+		lookup_organisation = ARG();
+		break;
 	case 'o':
-		update_title = 1;
+		edit = 1;
+		if (organisation)
+			usage();
+		organisation = ARG();
+		break;
+	case 'T':
+		add = 0;
+		if (lookup_title)
+			usage();
+		lookup_title = ARG();
 		break;
 	case 't':
-		update_organisation = 1;
+		edit = 1;
+		if (title)
+			usage();
+		title = ARG();
 		break;
 	case 'u':
-		remove_by_organisation = 1;
-		break;
-	case 'U':
-		remove_by_title = 1;
+		remove = 1;
 		break;
 	default:
 		usage();
 	} ARGEND;
 
-	edit = update_title + update_organisation + remove_by_organisation + remove_by_title;
-	if (edit > 1 || argc < 3 - remove_by_organisation - remove_by_title || argc > 3)
-		usage();
+	if (remove == edit) {
+		if (edit)
+			usage();
+		eprintf("at least one of -otu is required\n");
+	}
 
-	if (!*argv[0] || strchr(argv[0], '/'))
+	if (add)
+		edit = 0;
+
+	if (argc != 1 || !*argv[0] || strchr(argv[0], '/'))
 		usage();
 
 	errno = 0;
@@ -48,57 +69,46 @@ main(int argc, char *argv[])
 		eprintf("libcontacts_load_contact %s: %s\n", argv[0], errno ? strerror(errno) : "contact file is malformatted");
 
 	i = 0;
-	if (contact.organisations) {
-		if (!edit) {
-			for (; contact.organisations[i]; i++);
-		} else if (update_title) {
-			for (; contact.organisations[i]; i++) {
-				if (!strcmpnul(contact.organisations[i]->organisation, argv[1])) {
-					free(contact.organisations[i]->title);
-					contact.organisations[i]->title = estrdup(argv[2]);
-					goto save;
-				}
-			}
-		} else if (update_organisation) {
-			for (; contact.organisations[i]; i++) {
-				if (!strcmpnul(contact.organisations[i]->title, argv[2])) {
-					free(contact.organisations[i]->organisation);
-					contact.organisations[i]->organisation = estrdup(argv[1]);
-					goto save;
-				}
-			}
-		} else if (argc == 3) {
-			for (; contact.organisations[i]; i++)
-				if (!strcmpnul(contact.organisations[i]->organisation, argv[1]))
-					if (!strcmpnul(contact.organisations[i]->title, argv[2]))
-						break;
-		} else if (remove_by_organisation) {
-			for (; contact.organisations[i]; i++)
-				if (!strcmpnul(contact.organisations[i]->organisation, argv[1]))
-					break;
-		} else {
-			for (; contact.organisations[i]; i++)
-				if (!strcmpnul(contact.organisations[i]->title, argv[1]))
-					break;
+	if ((edit || remove) && contact.organisations) {
+		for (r = contact.organisations; *r; r++) {
+			if (lookup_title && strcmpnul((*r)->title, lookup_title))
+				continue;
+			if (lookup_organisation && strcmpnul((*r)->title, lookup_organisation))
+				continue;
+			break;
 		}
-	}
-	if (!edit || update_title || update_organisation) {
+		if (!edit) {
+			libcontacts_organisation_destroy(*r);
+			free(*r);
+			for (w = r++; (*w++ = *r++););
+		} else if (*r) {
+			if (title) {
+				old_title = contact.organisations[i]->title;
+				contact.organisations[i]->title = title;
+			}
+			if (organisation) {
+				old_organisation = contact.organisations[i]->organisation;
+				contact.organisations[i]->organisation = organisation;
+			}
+		} else {
+			libcontacts_contact_destroy(&contact);
+			return 0;
+		}
+	} else if (!edit && !remove) {
+		if (contact.organisations)
+			for (i = 0; contact.organisations[i]; i++);
 		contact.organisations = erealloc(contact.organisations, (i + 2) * sizeof(*contact.organisations));
 		contact.organisations[i + 1] = NULL;
 		contact.organisations[i] = ecalloc(1, sizeof(**contact.organisations));
-		contact.organisations[i]->organisation = estrdup(argv[1]);
-		contact.organisations[i]->title = estrdup(argv[2]);
-	} else if (contact.organisations && contact.organisations[i]) {
-		libcontacts_organisation_destroy(contact.organisations[i]);
-		free(contact.organisations[i]);
-		for (r = &1[w = &contact.organisations[i]]; *r;)
-			*w++ = *r++;
-		*w = NULL;
+		contact.organisations[i]->title = title;
+		contact.organisations[i]->organisation = organisation;
 	}
 
-save:
 	if (libcontacts_save_contact(&contact, user))
 		eprintf("libcontacts_save_contact %s:", argv[0]);
+
+	contact.organisations[i]->title = old_title;
+	contact.organisations[i]->organisation = old_organisation;
 	libcontacts_contact_destroy(&contact);
 
 	return 0;

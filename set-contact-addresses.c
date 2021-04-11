@@ -1,10 +1,10 @@
 /* See LICENSE file for copyright and license details. */
 #include "common.h"
 
-USAGE("[-A old-address] [-a new-address] [-C old-context] [-c new-context] "
-      "[-G [old-latitude]:[old-longitude]] [-g new-latitude:new-longitude] "
-      "[-N old-country] [-n new-country] [-O old-care-of] [-o new-care-of] "
-      "[-P post-code] [-p new-post-code] [-T old-city] [-t new-city] [-u] contact-id");
+USAGE("[-A old-address] [-C old-context] [-G [old-latitude]:[old-longitude]] [-N old-country] "
+      "[-O old-care-of] [-P post-code] [-T old-city] "
+      "([-a new-address] [-c new-context] [-g new-latitude:new-longitude] [-n new-country] "
+      "[-o new-care-of] [-p new-post-code] [-t new-city] | -u) contact-id");
 
 
 static int
@@ -131,7 +131,7 @@ main(int argc, char *argv[])
 
 	if (remove == edit) {
 		if (edit)
-			eprintf("-u cannot be combined with -acglopt\n");
+			usage();
 		eprintf("at least one of -acgloptu is required\n");
 	}
 

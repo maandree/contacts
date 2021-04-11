@@ -2,20 +2,23 @@
 #include "common.h"
 
 /* Date components are in different options to avoid date format confusion */
-USAGE("([-y year | -Y] [-m month | -M] [-d day | -D] [-b | -B] | -u) contact-id ...");
+USAGE("([-Y | -y year] [-M | -m month] [-D | -d day] [-B | -b] | -u) contact-id ...");
 
 
+#if defined(__GNUC__)
+__attribute__((__pure__))
+#endif
 static int
 getintarg(const char *arg)
 {
 	int ret = 0;
 	for (; isdigit(*arg); arg++) {
 		if (ret > (INT_MAX - (*arg & 15)) / 10)
-			usage();
+			return -1;
 		ret = ret * 10 + (*arg & 15);
 	}
 	if (*arg)
-		usage();
+		return -1;
 	return ret;
 }
 
@@ -34,6 +37,8 @@ main(int argc, char *argv[])
 		if (year)
 			usage();
 		year = getintarg(ARG());
+		if (year < 0)
+			usage();
 		break;
 	case 'Y':
 		if (year)
@@ -44,6 +49,8 @@ main(int argc, char *argv[])
 		if (month)
 			usage();
 		month = getintarg(ARG());
+		if (month < 0)
+			usage();
 		break;
 	case 'M':
 		if (month)
@@ -54,6 +61,8 @@ main(int argc, char *argv[])
 		if (day)
 			usage();
 		day = getintarg(ARG());
+		if (day < 0)
+			usage();
 		break;
 	case 'D':
 		if (day)

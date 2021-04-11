@@ -1,42 +1,63 @@
 /* See LICENSE file for copyright and license details. */
 #include "common.h"
 
-USAGE("[-c | -f] contact-id context fingerprint | -u contact-id context [fingerprint] | -U contact-id [context] fingerprint");
+USAGE("[-C old-context] [-F old-fingerprint] ([-c new-context] [-f new-fingerprint] | -u) contact-id");
 
 
 int
 main(int argc, char *argv[])
 {
-	int update_id = 0, update_context = 0;
-	int remove_by_context = 0, remove_by_id = 0;
-	int edit;
+	int add = 1, edit = 0, remove = 0;
+	char *id = NULL, *context = NULL;
+	char *lookup_id = NULL, *lookup_context = NULL;
+	char *old_id = NULL, *old_context = NULL;
 	struct passwd *user;
 	struct libcontacts_contact contact;
 	struct libcontacts_pgpkey **r, **w;
 	size_t i;
 
 	ARGBEGIN {
+	case 'C':
+		add = 0;
+		if (lookup_context)
+			usage();
+		lookup_context = ARG();
+		break;
 	case 'c':
-		update_context = 1;
+		edit = 0;
+		if (context)
+			usage();
+		context = ARG();
+		break;
+	case 'F':
+		add = 1;
+		if (lookup_id)
+			usage();
+		lookup_id = ARG();
 		break;
 	case 'f':
-		update_id = 1;
+		edit = 1;
+		if (id)
+			usage();
+		id = ARG();
 		break;
 	case 'u':
-		remove_by_context = 1;
-		break;
-	case 'U':
-		remove_by_id = 1;
+		remove = 1;
 		break;
 	default:
 		usage();
 	} ARGEND;
 
-	edit = update_id + update_context + remove_by_context + remove_by_id;
-	if (edit > 1 || argc < 3 - remove_by_context - remove_by_id || argc > 3)
-		usage();
+	if (remove == edit) {
+		if (edit)
+			usage();
+		eprintf("at least one of -cfu is required\n");
+	}
 
-	if (!*argv[0] || strchr(argv[0], '/'))
+	if (add)
+		edit = 0;
+
+	if (argc != 1 || !*argv[0] || strchr(argv[0], '/'))
 		usage();
 
 	errno = 0;
@@ -48,57 +69,46 @@ main(int argc, char *argv[])
 		eprintf("libcontacts_load_contact %s: %s\n", argv[0], errno ? strerror(errno) : "contact file is malformatted");
 
 	i = 0;
-	if (contact.pgpkeys) {
-		if (!edit) {
-			for (; contact.pgpkeys[i]; i++);
-		} else if (update_id) {
-			for (; contact.pgpkeys[i]; i++) {
-				if (!strcmpnul(contact.pgpkeys[i]->context, argv[1])) {
-					free(contact.pgpkeys[i]->id);
-					contact.pgpkeys[i]->id = estrdup(argv[2]);
-					goto save;
-				}
-			}
-		} else if (update_context) {
-			for (; contact.pgpkeys[i]; i++) {
-				if (!strcmpnul(contact.pgpkeys[i]->id, argv[2])) {
-					free(contact.pgpkeys[i]->context);
-					contact.pgpkeys[i]->context = estrdup(argv[1]);
-					goto save;
-				}
-			}
-		} else if (argc == 3) {
-			for (; contact.pgpkeys[i]; i++)
-				if (!strcmpnul(contact.pgpkeys[i]->context, argv[1]))
-					if (!strcmpnul(contact.pgpkeys[i]->id, argv[2]))
-						break;
-		} else if (remove_by_context) {
-			for (; contact.pgpkeys[i]; i++)
-				if (!strcmpnul(contact.pgpkeys[i]->context, argv[1]))
-					break;
-		} else {
-			for (; contact.pgpkeys[i]; i++)
-				if (!strcmpnul(contact.pgpkeys[i]->id, argv[1]))
-					break;
+	if ((edit || remove) && contact.pgpkeys) {
+		for (r = contact.pgpkeys; *r; r++) {
+			if (lookup_context && strcmpnul((*r)->context, lookup_context))
+				continue;
+			if (lookup_id && strcmpnul((*r)->context, lookup_id))
+				continue;
+			break;
 		}
-	}
-	if (!edit || update_id || update_context) {
+		if (!edit) {
+			libcontacts_pgpkey_destroy(*r);
+			free(*r);
+			for (w = r++; (*w++ = *r++););
+		} else if (*r) {
+			if (context) {
+				old_context = contact.pgpkeys[i]->context;
+				contact.pgpkeys[i]->context = context;
+			}
+			if (id) {
+				old_id = contact.pgpkeys[i]->id;
+				contact.pgpkeys[i]->id = id;
+			}
+		} else {
+			libcontacts_contact_destroy(&contact);
+			return 0;
+		}
+	} else if (!edit && !remove) {
+		if (contact.pgpkeys)
+			for (i = 0; contact.pgpkeys[i]; i++);
 		contact.pgpkeys = erealloc(contact.pgpkeys, (i + 2) * sizeof(*contact.pgpkeys));
 		contact.pgpkeys[i + 1] = NULL;
 		contact.pgpkeys[i] = ecalloc(1, sizeof(**contact.pgpkeys));
-		contact.pgpkeys[i]->context = estrdup(argv[1]);
-		contact.pgpkeys[i]->id = estrdup(argv[2]);
-	} else if (contact.pgpkeys && contact.pgpkeys[i]) {
-		libcontacts_pgpkey_destroy(contact.pgpkeys[i]);
-		free(contact.pgpkeys[i]);
-		for (r = &1[w = &contact.pgpkeys[i]]; *r;)
-			*w++ = *r++;
-		*w = NULL;
+		contact.pgpkeys[i]->context = context;
+		contact.pgpkeys[i]->id = id;
 	}
 
-save:
 	if (libcontacts_save_contact(&contact, user))
 		eprintf("libcontacts_save_contact %s:", argv[0]);
+
+	contact.pgpkeys[i]->context = old_context;
+	contact.pgpkeys[i]->id = old_id;
 	libcontacts_contact_destroy(&contact);
 
 	return 0;

@@ -1,28 +1,57 @@
 /* See LICENSE file for copyright and license details. */
 #include "common.h"
 
-USAGE("[-a | -c | -s | -u] contact-id context service address");
+USAGE("[-A old-address] [-C old-context] [-S old-service] ([-a new-adress] [-c new-context] [-s new-service] | -u) contact-id");
 
 
 int
 main(int argc, char *argv[])
 {
-	int update_address = 0, update_context = 0, update_service = 0;
-	int remove = 0, edit;
+	int add = 1, edit = 0, remove = 0;
+	char *address = NULL, *context = NULL, *service = NULL;
+	char *lookup_address = NULL, *lookup_context = NULL, *lookup_service = NULL;
+	char *old_address = NULL, *old_context = NULL, *old_service = NULL;
 	struct passwd *user;
 	struct libcontacts_contact contact;
 	struct libcontacts_chat **r, **w;
 	size_t i;
 
 	ARGBEGIN {
+	case 'A':
+		add = 0;
+		if (lookup_address)
+			usage();
+		lookup_address = ARG();
+		break;
 	case 'a':
-		update_address = 1;
+		edit = 1;
+		if (address)
+			usage();
+		address = ARG();
+		break;
+	case 'C':
+		add = 0;
+		if (lookup_context)
+			usage();
+		lookup_context = ARG();
 		break;
 	case 'c':
-		update_context = 1;
+		edit = 1;
+		if (context)
+			usage();
+		context = ARG();
+		break;
+	case 'S':
+		add = 0;
+		if (lookup_service)
+			usage();
+		lookup_service = ARG();
 		break;
 	case 's':
-		update_service = 1;
+		edit = 1;
+		if (service)
+			usage();
+		service = ARG();
 		break;
 	case 'u':
 		remove = 1;
@@ -31,11 +60,16 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	edit = update_address + update_context + update_service + remove;
-	if (edit > 1 || argc != 4)
-		usage();
+	if (remove == edit) {
+		if (edit)
+			usage();
+		eprintf("at least one of -acsu is required\n");
+	}
 
-	if (!*argv[0] || strchr(argv[0], '/'))
+	if (add)
+		edit = 0;
+
+	if (argc != 1 || !*argv[0] || strchr(argv[0], '/'))
 		usage();
 
 	errno = 0;
@@ -47,65 +81,52 @@ main(int argc, char *argv[])
 		eprintf("libcontacts_load_contact %s: %s\n", argv[0], errno ? strerror(errno) : "contact file is malformatted");
 
 	i = 0;
-	if (contact.chats) {
+	if ((edit || remove) && contact.chats) {
+		for (r = contact.chats; *r; r++) {
+			if (lookup_context && strcmpnul((*r)->context, lookup_context))
+				continue;
+			if (lookup_address && strcmpnul((*r)->context, lookup_address))
+				continue;
+			break;
+		}
 		if (!edit) {
-			for (; contact.chats[i]; i++);
-		} else if (update_address) {
-			for (; contact.chats[i]; i++) {
-				if (!strcmpnul(contact.chats[i]->context, argv[1])) {
-					if (!strcmpnul(contact.chats[i]->service, argv[2])) {
-						free(contact.chats[i]->address);
-						contact.chats[i]->address = estrdup(argv[3]);
-						goto save;
-					}
-				}
+			libcontacts_chat_destroy(*r);
+			free(*r);
+			for (w = r++; (*w++ = *r++););
+		} else if (*r) {
+			if (context) {
+				old_context = contact.chats[i]->context;
+				contact.chats[i]->context = context;
 			}
-		} else if (update_context) {
-			for (; contact.chats[i]; i++) {
-				if (!strcmpnul(contact.chats[i]->service, argv[2])) {
-					if (!strcmpnul(contact.chats[i]->address, argv[3])) {
-						free(contact.chats[i]->context);
-						contact.chats[i]->context = estrdup(argv[1]);
-						goto save;
-					}
-				}
+			if (service) {
+				old_service = contact.chats[i]->service;
+				contact.chats[i]->service = service;
 			}
-		} else if (update_service) {
-			for (; contact.chats[i]; i++) {
-				if (!strcmpnul(contact.chats[i]->context, argv[1])) {
-					if (!strcmpnul(contact.chats[i]->address, argv[3])) {
-						free(contact.chats[i]->context);
-						contact.chats[i]->service = estrdup(argv[2]);
-						goto save;
-					}
-				}
+			if (address) {
+				old_address = contact.chats[i]->address;
+				contact.chats[i]->address = address;
 			}
 		} else {
-			for (; contact.chats[i]; i++)
-				if (!strcmpnul(contact.chats[i]->context, argv[1]))
-					if (!strcmpnul(contact.chats[i]->service, argv[2]))
-						if (!strcmpnul(contact.chats[i]->address, argv[3]))
-							break;
+			libcontacts_contact_destroy(&contact);
+			return 0;
 		}
-	}
-	if (!edit || update_address || update_context || update_service) {
+	} else if (!edit && !remove) {
+		if (contact.chats)
+			for (i = 0; contact.chats[i]; i++);
 		contact.chats = erealloc(contact.chats, (i + 2) * sizeof(*contact.chats));
 		contact.chats[i + 1] = NULL;
 		contact.chats[i] = ecalloc(1, sizeof(**contact.chats));
-		contact.chats[i]->context = estrdup(argv[1]);
-		contact.chats[i]->service = estrdup(argv[2]);
-		contact.chats[i]->address = estrdup(argv[3]);
-	} else if (contact.chats && contact.chats[i]) {
-		libcontacts_chat_destroy(contact.chats[i]);
-		free(contact.chats[i]);
-		for (r = &1[w = &contact.chats[i]]; *r;)
-			*w++ = *r++;
-		*w = NULL;
+		contact.chats[i]->context = context;
+		contact.chats[i]->service = service;
+		contact.chats[i]->address = address;
 	}
 
-save:
 	if (libcontacts_save_contact(&contact, user))
 		eprintf("libcontacts_save_contact %s:", argv[0]);
+
+	contact.chats[i]->context = old_context;
+	contact.chats[i]->service = old_service;
+	contact.chats[i]->address = old_address;
 	libcontacts_contact_destroy(&contact);
 
 	return 0;
