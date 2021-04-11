@@ -11,14 +11,7 @@ Test list-chat-contacts
 Test list-contact-organisations
 Test list-organisation-contacts
 Test set-contact-blocks
-Test set-contact-chats
-Test set-contact-emails
-Test set-contact-groups
-Test set-contact-numbers
-Test set-contact-organisations
-Test set-contact-pgpkeys
 Test set-contact-photos
-Test set-contact-sites
 Test unblock-contact
 Add ability to filter on unset values in entries
 Add ability to remove values in entries

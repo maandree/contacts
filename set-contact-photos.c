@@ -1,7 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 #include "common.h"
 
-USAGE("[-ru] contact-id ... photo");
+USAGE("[-r | -u] contact-id ... photo");
 
 
 static char *
@@ -15,8 +15,13 @@ get_target(const char *path, size_t *lenp)
                 if ((size_t)n == size)
                         target = erealloc(target, size += 512);
                 n = readlink(path, target, size);
-                if (n < 0)
+                if (n < 0) {
+			if (errno == EINVAL) {
+				free(target);
+				return NULL;
+			}
 			eprintf("readlink %s:", path);
+		}
         } while ((size_t)n >= size);
 
 	*lenp = (size_t)n;
@@ -37,13 +42,13 @@ get_absolute_path(const char *path, const char *cwd)
 		ret = emalloc(retlennul);
 		memcpy(ret, path, retlennul);
 	} else {
-		len1 = strlen(path);
-		len2 = strlen(cwd);
+		len1 = strlen(cwd);
+		len2 = strlen(path);
 		retlennul = len1 + len2 + 2;
 		ret = emalloc(retlennul);
-		memcpy(ret, path, len1);
+		memcpy(ret, cwd, len1);
 		ret[len1++] = '/';
-		memcpy(&ret[len1], cwd, ++len2);
+		memcpy(&ret[len1], path, ++len2);
 	}
 
 again:
@@ -157,15 +162,15 @@ main(int argc, char *argv[])
 		break;
 	case 'u':
 		remove = 1;
-		as_is = 1;
 		break;
 	default:
 		usage();
 	} ARGEND;
 
-	if (argc < 2)
+	if (argc < 2 || (as_is & remove))
 		usage();
 
+	as_is |= remove;
 	photo = argv[--argc];
 	argv[argc] = NULL;
 
@@ -195,7 +200,8 @@ main(int argc, char *argv[])
 
 	for (; *argv; argv++) {
 		if (libcontacts_load_contact(*argv, &contact, user)) {
-			weprintf("libcontacts_load_contact %s: %s\n", *argv, errno ? strerror(errno) : "contact file is malformatted");
+			weprintf("libcontacts_load_contact %s: %s\n", *argv,
+			         errno ? strerror(errno) : "contact file is malformatted");
 			ret = 1;
 			continue;
 		}
@@ -204,17 +210,15 @@ main(int argc, char *argv[])
 				if (!strcmp(contact.photos[i], photo))
 					break;
 			r = &contact.photos[i];
+			if (!remove && !*r)
+				goto add_photo;
 			if (remove && *r) {
 				free(*r);
-				for (w = r++; *r;)
-					*w++ = *r++;
-				*w = NULL;
+				for (w = r++; (*w++ = *r++););
 				if (libcontacts_save_contact(&contact, user)) {
 					weprintf("libcontacts_save_contact %s:", *argv);
 					ret = 1;
 				}
-			} else if (!remove && !*r) {
-				goto add_photo;
 			}
 		} else if (!remove) {
 			i = 0;

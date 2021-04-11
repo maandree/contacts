@@ -13,9 +13,9 @@ main(int argc, char *argv[])
 	enum libcontacts_block_type lookup_shadow_block = LIBCONTACTS_BLOCK_IGNORE;
 	time_t soft_unblock = 0, hard_unblock = 0;
 	time_t lookup_soft_unblock = 0, lookup_hard_unblock = 0;
-	char *srv = NULL, *type = NULL, *style = NULL, *ask = NULL, *ublk = NULL;
-	char *lookup_srv = NULL, *lookup_type = NULL, *lookup_style = NULL;
-	char *lookup_ask = NULL, *lookup_ublk = NULL, *old_srv = NULL, global[] = ".global";
+	const char *srv = NULL, *type = NULL, *style = NULL, *ask = NULL, *ublk = NULL;
+	const char *lookup_srv = NULL, *lookup_type = NULL, *lookup_style = NULL;
+	const char *lookup_ask = NULL, *lookup_ublk = NULL;
 	struct passwd *user;
 	struct libcontacts_contact contact;
 	char *p;
@@ -106,9 +106,6 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (add)
-		edit = 0;
-
 	if (argc != 1 || !*argv[0] || strchr(argv[0], '/'))
 		usage();
 
@@ -156,17 +153,22 @@ main(int argc, char *argv[])
 			eprintf("value of -y shall be either \"silent\", \"as-off\", \"as-busy\", or \"ignore\"\n");
 	}
 
+	if (add)
+		edit = 0;
+
 	errno = 0;
 	user = getpwuid(getuid());
 	if (!user)
 		eprintf("getpwuid: %s\n", errno ? strerror(errno) : "user does not exist");
 
-	if (libcontacts_load_contact(argv[0], &contact, user))
-		eprintf("libcontacts_load_contact %s: %s\n", argv[0], errno ? strerror(errno) : "contact file is malformatted");
+	if (libcontacts_load_contact(argv[0], &contact, user)) {
+		eprintf("libcontacts_load_contact %s: %s\n", argv[0],
+		        errno ? strerror(errno) : "contact file is malformatted");
+	}
 
 	i = 0;
 	if (edit && contact.blocks) {
-		for (i = 0; contact.blocks[i]; i++) {
+		for (; contact.blocks[i]; i++) {
 			if (lookup_srv && strcmpnul(contact.blocks[i]->service, lookup_srv))
 				continue;
 			if (lookup_type && contact.blocks[i]->explicit != lookup_explicit)
@@ -178,8 +180,8 @@ main(int argc, char *argv[])
 			if (lookup_ublk && contact.blocks[i]->hard_unblock != lookup_hard_unblock)
 				continue;
 			if (srv) {
-				old_srv = contact.blocks[i]->service;
-				contact.blocks[i]->service = srv;
+				free(contact.blocks[i]->service);
+				contact.blocks[i]->service = estrdup(srv);
 			}
 			if (type)
 				contact.blocks[i]->explicit = explicit;
@@ -196,7 +198,7 @@ main(int argc, char *argv[])
 		contact.blocks = erealloc(contact.blocks, (i + 2) * sizeof(*contact.blocks));
 		contact.blocks[i + 1] = NULL;
 		contact.blocks[i] = ecalloc(1, sizeof(**contact.emails));
-		contact.blocks[i]->service      = srv ? srv : global;
+		contact.blocks[i]->service      = estrdup(srv ? srv : ".global");
 		contact.blocks[i]->explicit     = explicit;
 		contact.blocks[i]->shadow_block = shadow_block;
 		contact.blocks[i]->soft_unblock = soft_unblock;
@@ -206,8 +208,6 @@ main(int argc, char *argv[])
 	if (libcontacts_save_contact(&contact, user))
 		eprintf("libcontacts_save_contact %s:", argv[0]);
 
-	contact.blocks[i]->service = old_srv;
 	libcontacts_contact_destroy(&contact);
-
 	return 0;
 }

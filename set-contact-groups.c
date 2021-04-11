@@ -39,7 +39,8 @@ main(int argc, char *argv[])
 
 	for (; *argv; argv++) {
 		if (libcontacts_load_contact(*argv, &contact, user)) {
-			weprintf("libcontacts_load_contact %s: %s\n", *argv, errno ? strerror(errno) : "contact file is malformatted");
+			weprintf("libcontacts_load_contact %s: %s\n", *argv,
+			         errno ? strerror(errno) : "contact file is malformatted");
 			ret = 1;
 			continue;
 		}
@@ -48,17 +49,15 @@ main(int argc, char *argv[])
 				if (!strcmp(contact.groups[i], group))
 					break;
 			r = &contact.groups[i];
+			if (!remove && !*r)
+				goto add_group;
 			if (remove && *r) {
 				free(*r);
-				for (w = r++; *r;)
-					*w++ = *r++;
-				*w = NULL;
+				for (w = r++; (*w++ = *r++););
 				if (libcontacts_save_contact(&contact, user)) {
 					weprintf("libcontacts_save_contact %s:", *argv);
 					ret = 1;
 				}
-			} else if (!remove && !*r) {
-				goto add_group;
 			}
 		} else if (!remove) {
 			i = 0;
