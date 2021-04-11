@@ -1,8 +1,8 @@
 /* See LICENSE file for copyright and license details. */
 #include "common.h"
 
-USAGE("[-A ask-at] [-a ask-at] [-S service] [-s service] [-T type] [-t type] "
-      "[-U unblock-at] [-u unblock-at] [-Y style] [-y style] contact-id");
+USAGE("[-A old-ask-at] [-a new-ask-at] [-S old-service] [-s new-service] [-T old-type] [-t new-type] "
+      "[-U old-unblock-at] [-u new-unblock-at] [-Y old-style] [-y new-style] contact-id");
 
 
 int

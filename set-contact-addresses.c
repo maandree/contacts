@@ -1,9 +1,10 @@
 /* See LICENSE file for copyright and license details. */
 #include "common.h"
 
-USAGE("[-A address] [-a address] [-C context] [-c context] [-G [latitude]:[longitude]] [-g latitude:longitude] "
-      "[-N country] [-n country] [-O care-of] [-o care-of] [-P post-code] [-p post-code] [-T city] [-t city] "
-      "[-u] contact-id");
+USAGE("[-A old-address] [-a new-address] [-C old-context] [-c new-context] "
+      "[-G [old-latitude]:[old-longitude]] [-g new-latitude:new-longitude] "
+      "[-N old-country] [-n new-country] [-O old-care-of] [-o new-care-of] "
+      "[-P post-code] [-p new-post-code] [-T old-city] [-t new-city] [-u] contact-id");
 
 
 static int
