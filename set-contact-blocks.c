@@ -1,29 +1,40 @@
 /* See LICENSE file for copyright and license details. */
 #include "common.h"
 
-USAGE("[-a ask-at | -A ask-at] [-s service | -S service] [-t type | -T type] "
-      "[-u unblock-at | -U unblock-at] [-y style | -Y style] contact-id");
+USAGE("[-a ask-at] [-A ask-at] [-s service] [-S service] [-t type] [-T type] "
+      "[-u unblock-at] [-U unblock-at] [-y style] [-Y style] contact-id");
 
 
 int
 main(int argc, char *argv[])
 {
-	int edit_srv = 0, edit_type = 0, edit_style = 0, edit_ask = 0, edit_ublk = 0;
-	int edit = 0, explicit = 1;
+	int add = 1, edit = 0, explicit = 1, lookup_explicit = 1;
 	enum libcontacts_block_type shadow_block = LIBCONTACTS_BLOCK_IGNORE;
+	enum libcontacts_block_type lookup_shadow_block = LIBCONTACTS_BLOCK_IGNORE;
 	time_t soft_unblock = 0, hard_unblock = 0;
+	time_t lookup_soft_unblock = 0, lookup_hard_unblock = 0;
 	const char *srv = NULL, *type = NULL, *style = NULL, *ask = NULL, *ublk = NULL;
+	const char *lookup_srv = NULL, *lookup_type = NULL, *lookup_style = NULL;
+	const char *lookup_ask = NULL, *lookup_ublk = NULL;
 	struct passwd *user;
 	struct libcontacts_contact contact;
 	char *p;
 	size_t i;
 
 	ARGBEGIN {
-	case 'A':
-		edit_ask = 1;
-		edit = 1;
-		/* fall through */
 	case 'a':
+		add = 0;
+		if (lookup_ask)
+			usage();
+		lookup_ask = ARG();
+		if (!isdigit(*lookup_ask))
+			usage();
+		lookup_soft_unblock = (time_t)strtoumax(lookup_ask, &p, 10);
+		if (errno || *p)
+			usage();
+		break;
+	case 'A':
+		edit = 1;
 		if (ask)
 			usage();
 		ask = ARG();
@@ -33,29 +44,43 @@ main(int argc, char *argv[])
 		if (errno || *p)
 			usage();
 		break;
-	case 'S':
-		edit_srv = 1;
-		edit = 1;
-		/* fall through */
 	case 's':
+		add = 0;
+		if (lookup_srv)
+			usage();
+		lookup_srv = ARG();
+		break;
+	case 'S':
+		edit = 1;
 		if (srv)
 			usage();
 		srv = ARG();
 		break;
-	case 'T':
-		edit_type = 1;
-		edit = 1;
-		/* fall through */
 	case 't':
+		add = 0;
+		if (lookup_type)
+			usage();
+		lookup_type = ARG();
+		break;
+	case 'T':
+		edit = 1;
 		if (type)
 			usage();
 		type = ARG();
 		break;
-	case 'U':
-		edit_ublk = 1;
-		edit = 1;
-		/* fall through */
 	case 'u':
+		add = 0;
+		if (lookup_ublk)
+			usage();
+		lookup_ublk = ARG();
+		if (!isdigit(*lookup_ublk))
+			usage();
+		lookup_hard_unblock = (time_t)strtoumax(lookup_ublk, &p, 10);
+		if (errno || *p)
+			usage();
+		break;
+	case 'U':
+		edit = 1;
 		if (ublk)
 			usage();
 		ublk = ARG();
@@ -65,11 +90,14 @@ main(int argc, char *argv[])
 		if (errno || *p)
 			usage();
 		break;
-	case 'Y':
-		edit_style = 1;
-		edit = 1;
-		/* fall through */
 	case 'y':
+		add = 0;
+		if (lookup_style)
+			usage();
+		lookup_style = ARG();
+		break;
+	case 'Y':
+		edit = 1;
 		if (style)
 			usage();
 		style = ARG();
@@ -78,12 +106,20 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if ((!srv || edit_srv) && (!type || edit_type) && (!style || edit_style) &&
-	    (!ask || edit_ask) && (!ublk || edit_ublk))
+	if (add)
 		edit = 0;
 
 	if (argc != 1 || !*argv[0] || strchr(argv[0], '/'))
 		usage();
+
+	if (lookup_type) {
+		if (!strcmp(lookup_type, "explicit"))
+			lookup_explicit = 1;
+		else if (!strcmp(lookup_type, "shadow"))
+			lookup_explicit = 0;
+		else
+			eprintf("value of -t shall be either \"explicit\" or \"shadow\"\n");
+	}
 
 	if (type) {
 		if (!strcmp(type, "explicit"))
@@ -91,7 +127,20 @@ main(int argc, char *argv[])
 		else if (!strcmp(type, "shadow"))
 			explicit = 0;
 		else
-			eprintf("value of -%c shall be either \"explicit\" or \"shadow\"\n", edit_type ? 'T' : 't');
+			eprintf("value of -T shall be either \"explicit\" or \"shadow\"\n");
+	}
+
+	if (lookup_style) {
+		if (!strcmp(lookup_style, "silent"))
+			lookup_shadow_block = LIBCONTACTS_SILENT;
+		else if (!strcmp(lookup_style, "as-off"))
+			lookup_shadow_block = LIBCONTACTS_BLOCK_OFF;
+		else if (!strcmp(lookup_style, "as-busy"))
+			lookup_shadow_block = LIBCONTACTS_BLOCK_BUSY;
+		else if (!strcmp(lookup_style, "ignore"))
+			lookup_shadow_block = LIBCONTACTS_BLOCK_IGNORE;
+		else
+			eprintf("value of -y shall be either \"silent\", \"as-off\", \"as-busy\", or \"ignore\"\n");
 	}
 
 	if (style) {
@@ -103,10 +152,8 @@ main(int argc, char *argv[])
 			shadow_block = LIBCONTACTS_BLOCK_BUSY;
 		else if (!strcmp(style, "ignore"))
 			shadow_block = LIBCONTACTS_BLOCK_IGNORE;
-		else if (edit_style)
-			eprintf("value of -Y shall be either \"silent\", \"as-off\", \"as-busy\", or \"ignore\"\n");
 		else
-			eprintf("value of -y shall be either \"silent\", \"as-off\", \"as-busy\", or \"ignore\"\n");
+			eprintf("value of -Y shall be either \"silent\", \"as-off\", \"as-busy\", or \"ignore\"\n");
 	}
 
 	errno = 0;
@@ -119,27 +166,27 @@ main(int argc, char *argv[])
 
 	if (edit && contact.blocks) {
 		for (i = 0; contact.blocks[i]; i++) {
-			if (srv && !edit_srv && strcmpnul(contact.blocks[i]->service, srv))
+			if (lookup_srv && strcmpnul(contact.blocks[i]->service, lookup_srv))
 				continue;
-			if (type && !edit_type && contact.blocks[i]->explicit != explicit)
+			if (lookup_type && contact.blocks[i]->explicit != lookup_explicit)
 				continue;
-			if (style && !edit_style && contact.blocks[i]->shadow_block != shadow_block)
+			if (lookup_style && contact.blocks[i]->shadow_block != lookup_shadow_block)
 				continue;
-			if (ask && !edit_ask && contact.blocks[i]->soft_unblock != soft_unblock)
+			if (lookup_ask && contact.blocks[i]->soft_unblock != lookup_soft_unblock)
 				continue;
-			if (ublk && !edit_ublk && contact.blocks[i]->hard_unblock != hard_unblock)
+			if (lookup_ublk && contact.blocks[i]->hard_unblock != lookup_hard_unblock)
 				continue;
-			if (edit_srv) {
+			if (srv) {
 				free(contact.blocks[i]->service);
 				contact.blocks[i]->service = estrdup(srv);
 			}
-			if (edit_type)
+			if (type)
 				contact.blocks[i]->explicit = explicit;
-			if (edit_style)
+			if (style)
 				contact.blocks[i]->shadow_block = shadow_block;
-			if (edit_ask)
+			if (ask)
 				contact.blocks[i]->soft_unblock = soft_unblock;
-			if (edit_ublk)
+			if (ublk)
 				contact.blocks[i]->hard_unblock = hard_unblock;
 		}
 	} else if (!edit) {
