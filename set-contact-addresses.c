@@ -1,8 +1,8 @@
 /* See LICENSE file for copyright and license details. */
 #include "common.h"
 
-USAGE("[-a address] [-A address] [-c context] [-C context] [-g [latitude]:[longitude]] [-G latitude:longitude] "
-      "[-n country] [-N country] [-o care-of] [-O care-of] [-p post-code] [-P post-code] [-t city] [-T city] "
+USAGE("[-A address] [-a address] [-C context] [-c context] [-G [latitude]:[longitude]] [-g latitude:longitude] "
+      "[-N country] [-n country] [-O care-of] [-o care-of] [-P post-code] [-p post-code] [-T city] [-t city] "
       "[-u] contact-id");
 
 
@@ -28,86 +28,86 @@ main(int argc, char *argv[])
 	char *p;
 
 	ARGBEGIN {
-	case 'c':
+	case 'C':
 		add = 0;
 		if (lookup_context)
 			usage();
 		lookup_context = ARG();
 		break;
-	case 'C':
+	case 'c':
 		edit = 1;
 		if (context)
 			usage();
 		context = ARG();
 		break;
-	case 'o':
+	case 'O':
 		add = 0;
 		if (lookup_careof)
 			usage();
 		lookup_careof = ARG();
 		break;
-	case 'O':
+	case 'o':
 		add = 0;
 		edit = 1;
 		if (careof)
 			usage();
 		careof = ARG();
 		break;
-	case 'a':
+	case 'A':
 		add = 0;
 		if (lookup_address)
 			usage();
 		lookup_address = ARG();
 		break;
-	case 'A':
+	case 'a':
 		edit = 1;
 		if (address)
 			usage();
 		address = ARG();
 		break;
-	case 'p':
+	case 'P':
 		add = 0;
 		if (lookup_postcode)
 			usage();
 		lookup_postcode = ARG();
 		break;
-	case 'P':
+	case 'p':
 		edit = 1;
 		if (postcode)
 			usage();
 		postcode = ARG();
 		break;
-	case 't':
+	case 'T':
 		add = 0;
 		if (lookup_city)
 			usage();
 		lookup_city = ARG();
 		break;
-	case 'T':
+	case 't':
 		edit = 1;
 		if (city)
 			usage();
 		city = ARG();
 		break;
-	case 'n':
+	case 'N':
 		add = 0;
 		if (lookup_country)
 			usage();
 		lookup_country = ARG();
 		break;
-	case 'N':
+	case 'n':
 		edit = 1;
 		if (country)
 			usage();
 		country = ARG();
 		break;
-	case 'g':
+	case 'G':
 		add = 0;
 		if (lookup_location)
 			usage();
 		lookup_location = ARG();
 		break;
-	case 'G':
+	case 'g':
 		edit = 1;
 		if (location)
 			usage();
@@ -130,8 +130,8 @@ main(int argc, char *argv[])
 
 	if (remove == edit) {
 		if (edit)
-			eprintf("-u cannot be combined with -ACGLOPT\n");
-		eprintf("at least one of -ACGLOPTu is required\n");
+			eprintf("-u cannot be combined with -acglopt\n");
+		eprintf("at least one of -acgloptu is required\n");
 	}
 
 	if (add)

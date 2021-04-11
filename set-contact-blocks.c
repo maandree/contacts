@@ -1,8 +1,8 @@
 /* See LICENSE file for copyright and license details. */
 #include "common.h"
 
-USAGE("[-a ask-at] [-A ask-at] [-s service] [-S service] [-t type] [-T type] "
-      "[-u unblock-at] [-U unblock-at] [-y style] [-Y style] contact-id");
+USAGE("[-A ask-at] [-a ask-at] [-S service] [-s service] [-T type] [-t type] "
+      "[-U unblock-at] [-u unblock-at] [-Y style] [-y style] contact-id");
 
 
 int
@@ -22,7 +22,7 @@ main(int argc, char *argv[])
 	size_t i;
 
 	ARGBEGIN {
-	case 'a':
+	case 'A':
 		add = 0;
 		if (lookup_ask)
 			usage();
@@ -33,7 +33,7 @@ main(int argc, char *argv[])
 		if (errno || *p)
 			usage();
 		break;
-	case 'A':
+	case 'a':
 		edit = 1;
 		if (ask)
 			usage();
@@ -44,31 +44,31 @@ main(int argc, char *argv[])
 		if (errno || *p)
 			usage();
 		break;
-	case 's':
+	case 'S':
 		add = 0;
 		if (lookup_srv)
 			usage();
 		lookup_srv = ARG();
 		break;
-	case 'S':
+	case 's':
 		edit = 1;
 		if (srv)
 			usage();
 		srv = ARG();
 		break;
-	case 't':
+	case 'T':
 		add = 0;
 		if (lookup_type)
 			usage();
 		lookup_type = ARG();
 		break;
-	case 'T':
+	case 't':
 		edit = 1;
 		if (type)
 			usage();
 		type = ARG();
 		break;
-	case 'u':
+	case 'U':
 		add = 0;
 		if (lookup_ublk)
 			usage();
@@ -79,7 +79,7 @@ main(int argc, char *argv[])
 		if (errno || *p)
 			usage();
 		break;
-	case 'U':
+	case 'u':
 		edit = 1;
 		if (ublk)
 			usage();
@@ -90,13 +90,13 @@ main(int argc, char *argv[])
 		if (errno || *p)
 			usage();
 		break;
-	case 'y':
+	case 'Y':
 		add = 0;
 		if (lookup_style)
 			usage();
 		lookup_style = ARG();
 		break;
-	case 'Y':
+	case 'y':
 		edit = 1;
 		if (style)
 			usage();
@@ -118,7 +118,7 @@ main(int argc, char *argv[])
 		else if (!strcmp(lookup_type, "shadow"))
 			lookup_explicit = 0;
 		else
-			eprintf("value of -t shall be either \"explicit\" or \"shadow\"\n");
+			eprintf("value of -T shall be either \"explicit\" or \"shadow\"\n");
 	}
 
 	if (type) {
@@ -127,7 +127,7 @@ main(int argc, char *argv[])
 		else if (!strcmp(type, "shadow"))
 			explicit = 0;
 		else
-			eprintf("value of -T shall be either \"explicit\" or \"shadow\"\n");
+			eprintf("value of -t shall be either \"explicit\" or \"shadow\"\n");
 	}
 
 	if (lookup_style) {
@@ -140,7 +140,7 @@ main(int argc, char *argv[])
 		else if (!strcmp(lookup_style, "ignore"))
 			lookup_shadow_block = LIBCONTACTS_BLOCK_IGNORE;
 		else
-			eprintf("value of -y shall be either \"silent\", \"as-off\", \"as-busy\", or \"ignore\"\n");
+			eprintf("value of -Y shall be either \"silent\", \"as-off\", \"as-busy\", or \"ignore\"\n");
 	}
 
 	if (style) {
@@ -153,7 +153,7 @@ main(int argc, char *argv[])
 		else if (!strcmp(style, "ignore"))
 			shadow_block = LIBCONTACTS_BLOCK_IGNORE;
 		else
-			eprintf("value of -Y shall be either \"silent\", \"as-off\", \"as-busy\", or \"ignore\"\n");
+			eprintf("value of -y shall be either \"silent\", \"as-off\", \"as-busy\", or \"ignore\"\n");
 	}
 
 	errno = 0;
