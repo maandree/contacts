@@ -1,8 +1,8 @@
 /* See LICENSE file for copyright and license details. */
 #include "common.h"
 
-USAGE("[-a address | -A address] [-c context | -C context] [-g [latitude]:[longitude] | -G latitude:longitude] "
-      "[-n country | -N country] [-o care-of | -O care-of] [-p post-code | -P post-code] [-t city | -T city] "
+USAGE("[-a address] [-A address] [-c context] [-C context] [-g [latitude]:[longitude]] [-G latitude:longitude] "
+      "[-n country] [-N country] [-o care-of] [-O care-of] [-p post-code] [-P post-code] [-t city] [-T city] "
       "[-u] contact-id");
 
 
@@ -16,11 +16,11 @@ size_t_cmp(const void *av, const void *bv)
 int
 main(int argc, char *argv[])
 {
-	int edit_address = 0, edit_context = 0, edit_location = 0;
-	int edit_country = 0, edit_careof = 0, edit_postcode = 0;
-	int edit_city = 0, edit = 0, remove = 0;
+	int add = 1, edit = 0, remove = 0;
 	const char *address = NULL, *context = NULL, *location = NULL;
 	const char *country = NULL, *careof = NULL, *postcode = NULL, *city = NULL;
+	const char *lookup_address = NULL, *lookup_context = NULL, *lookup_location = NULL;
+	const char *lookup_country = NULL, *lookup_careof = NULL, *lookup_postcode = NULL, *lookup_city = NULL;
 	double lat, lon, lat_min = 0, lat_max = 0, lon_min = 0, lon_max = 0, flat, flon;
 	struct passwd *user;
 	struct libcontacts_contact contact;
@@ -28,74 +28,92 @@ main(int argc, char *argv[])
 	char *p;
 
 	ARGBEGIN {
-	case 'C':
-		edit_context = 1;
-		edit = 1;
-		/* fall through */
 	case 'c':
+		add = 0;
+		if (lookup_context)
+			usage();
+		lookup_context = ARG();
+		break;
+	case 'C':
+		edit = 1;
 		if (context)
 			usage();
 		context = ARG();
 		break;
-	case 'O':
-		edit_careof = 1;
-		edit = 1;
-		/* fall through */
 	case 'o':
+		add = 0;
+		if (lookup_careof)
+			usage();
+		lookup_careof = ARG();
+		break;
+	case 'O':
+		add = 0;
+		edit = 1;
 		if (careof)
 			usage();
 		careof = ARG();
 		break;
-	case 'A':
-		edit_address = 1;
-		edit = 1;
-		/* fall through */
 	case 'a':
+		add = 0;
+		if (lookup_address)
+			usage();
+		lookup_address = ARG();
+		break;
+	case 'A':
+		edit = 1;
 		if (address)
 			usage();
 		address = ARG();
 		break;
-	case 'P':
-		edit_postcode = 1;
-		edit = 1;
-		/* fall through */
 	case 'p':
+		add = 0;
+		if (lookup_postcode)
+			usage();
+		lookup_postcode = ARG();
+		break;
+	case 'P':
+		edit = 1;
 		if (postcode)
 			usage();
 		postcode = ARG();
 		break;
-	case 'T':
-		edit_city = 1;
-		edit = 1;
-		/* fall through */
 	case 't':
+		add = 0;
+		if (lookup_city)
+			usage();
+		lookup_city = ARG();
+		break;
+	case 'T':
+		edit = 1;
 		if (city)
 			usage();
 		city = ARG();
 		break;
-	case 'N':
-		edit_country = 1;
-		edit = 1;
-		/* fall through */
 	case 'n':
+		add = 0;
+		if (lookup_country)
+			usage();
+		lookup_country = ARG();
+		break;
+	case 'N':
+		edit = 1;
 		if (country)
 			usage();
 		country = ARG();
 		break;
-	case 'G':
-		edit_location = 1;
-		edit = 1;
-		/* fall through */
 	case 'g':
+		add = 0;
+		if (lookup_location)
+			usage();
+		lookup_location = ARG();
+		break;
+	case 'G':
+		edit = 1;
 		if (location)
 			usage();
 		location = ARG();
-		if (edit_location) {
-			p = strchr(location, ':');
-			if (!p || !p[1] || p == location)
-				usage();
-		}
-		if (parse_coord(location, &lat, &lat_min, &lat_max, &lon, &lon_min, &lon_max))
+		p = strchr(location, ':');
+		if (!p || !p[1] || p == location)
 			usage();
 		break;
 	case 'u':
@@ -105,16 +123,18 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
+	if (location && parse_coord(location, &lat, &lat_min, &lat_max, &lon, &lon_min, &lon_max))
+		usage();
+	if (lookup_location && parse_coord(lookup_location, &flat, &lat_min, &lat_max, &flon, &lon_min, &lon_max))
+		usage();
+
 	if (remove == edit) {
 		if (edit)
 			eprintf("-u cannot be combined with -ACGLOPT\n");
 		eprintf("at least one of -ACGLOPTu is required\n");
 	}
 
-	if ((!context  || edit_context) && (!careof   || edit_careof)   &&
-	    (!address  || edit_address) && (!postcode || edit_postcode) &&
-	    (!city     || edit_city)    && (!country  || edit_country)  &&
-	    (!location || edit_location))
+	if (add)
 		edit = 0;
 
 	if (argc != 1 || !*argv[0] || strchr(argv[0], '/'))
@@ -138,31 +158,31 @@ main(int argc, char *argv[])
 		for (i = 0; i < nindices; i++)
 			indices[i] = i;
 
-		if (context && !edit_context)
+		if (lookup_context)
 			for (i = 0; i < nindices;)
-				if (strcmpnul(contact.addresses[indices[i++]]->context, context))
+				if (strcmpnul(contact.addresses[indices[i++]]->context, lookup_context))
 					indices[--i] = indices[--nindices];
-		if (careof && !edit_careof)
+		if (lookup_careof)
 			for (i = 0; i < nindices;)
-				if (strcmpnul(contact.addresses[indices[i++]]->care_of, careof))
+				if (strcmpnul(contact.addresses[indices[i++]]->care_of, lookup_careof))
 					indices[--i] = indices[--nindices];
-		if (address && !edit_address)
+		if (lookup_address)
 			for (i = 0; i < nindices;)
-				if (strcmpnul(contact.addresses[indices[i++]]->address, address))
+				if (strcmpnul(contact.addresses[indices[i++]]->address, lookup_address))
 					indices[--i] = indices[--nindices];
-		if (postcode && !edit_postcode)
+		if (lookup_postcode)
 			for (i = 0; i < nindices;)
-				if (strcmpnul(contact.addresses[indices[i++]]->postcode, postcode))
+				if (strcmpnul(contact.addresses[indices[i++]]->postcode, lookup_postcode))
 					indices[--i] = indices[--nindices];
-		if (city && !edit_city)
+		if (lookup_city)
 			for (i = 0; i < nindices;)
-				if (strcmpnul(contact.addresses[indices[i++]]->city, city))
+				if (strcmpnul(contact.addresses[indices[i++]]->city, lookup_city))
 					indices[--i] = indices[--nindices];
-		if (country && !edit_country)
+		if (lookup_country)
 			for (i = 0; i < nindices;)
-				if (strcmpnul(contact.addresses[indices[i++]]->country, country))
+				if (strcmpnul(contact.addresses[indices[i++]]->country, lookup_country))
 					indices[--i] = indices[--nindices];
-		if (location && !edit_location) {
+		if (lookup_location) {
 			for (i = 0; i < nindices;) {
 				if (!contact.addresses[indices[i++]]->have_coordinates) {
 					flat = contact.addresses[indices[i - 1]]->latitude;
@@ -176,31 +196,31 @@ main(int argc, char *argv[])
 		if (edit) {
 			while (nindices--) {
 				i = indices[nindices];
-				if (edit_context) {
+				if (context) {
 					free(contact.addresses[i]->context);
 					contact.addresses[i]->context = estrdup(context);
 				}
-				if (edit_careof) {
+				if (careof) {
 					free(contact.addresses[i]->care_of);
 					contact.addresses[i]->care_of = estrdup(careof);
 				}
-				if (edit_address) {
+				if (address) {
 					free(contact.addresses[i]->address);
 					contact.addresses[i]->address = estrdup(address);
 				}
-				if (edit_postcode) {
+				if (postcode) {
 					free(contact.addresses[i]->postcode);
 					contact.addresses[i]->postcode = estrdup(postcode);
 				}
-				if (edit_city) {
+				if (city) {
 					free(contact.addresses[i]->city);
 					contact.addresses[i]->city = estrdup(city);
 				}
-				if (edit_country) {
+				if (country) {
 					free(contact.addresses[i]->country);
 					contact.addresses[i]->country = estrdup(country);
 				}
-				if (edit_location) {
+				if (location) {
 					contact.addresses[i]->latitude = lat;
 					contact.addresses[i]->longitude = lon;
 					contact.addresses[i]->have_coordinates = 1;
@@ -229,9 +249,9 @@ main(int argc, char *argv[])
 		contact.addresses[i]->city     = city     ? estrdup(city)     : NULL;
 		contact.addresses[i]->country  = country  ? estrdup(country)  : NULL;
 		if (location) {
-			contact.addresses[i]->have_coordinates = 1;
 			contact.addresses[i]->latitude = lat;
 			contact.addresses[i]->longitude = lon;
+			contact.addresses[i]->have_coordinates = 1;
 		}
 	}
 
