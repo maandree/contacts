@@ -10,13 +10,10 @@ Test get-contact-photos
 Test list-chat-contacts
 Test list-contact-organisations
 Test list-organisation-contacts
-Test set-contact-addresses
-Test set-contact-birthday
 Test set-contact-blocks
 Test set-contact-chats
 Test set-contact-emails
 Test set-contact-groups
-Test set-contact-name
 Test set-contact-numbers
 Test set-contact-organisations
 Test set-contact-pgpkeys

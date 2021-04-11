@@ -1,7 +1,7 @@
 /* See LICENSE file for copyright and license details. */
 #include "common.h"
 
-USAGE("[-u] contact-id");
+USAGE("[-u] contact-id"); /* TODO add -a (append) */
 
 
 int
