@@ -42,7 +42,8 @@ main(int argc, char *argv[])
 
 	for (; *argv; argv++) {
 		if (libcontacts_load_contact(*argv, &contact, user)) {
-			weprintf("libcontacts_load_contact %s: %s\n", *argv, errno ? strerror(errno) : "contact file is malformatted");
+			weprintf("libcontacts_load_contact %s: %s\n", *argv,
+			         errno ? strerror(errno) : "contact file is malformatted");
 			ret = 1;
 		}
 		if (lookup_unassigned) {

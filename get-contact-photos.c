@@ -45,8 +45,10 @@ main(int argc, char *argv[])
 	}
 
 	for (; *argv; argv++) {
-		if (libcontacts_load_contact(*argv, &contact, user))
-			eprintf("libcontacts_load_contact %s: %s\n", *argv, errno ? strerror(errno) : "contact file is malformatted");
+		if (libcontacts_load_contact(*argv, &contact, user)) {
+			eprintf("libcontacts_load_contact %s: %s\n", *argv,
+			        errno ? strerror(errno) : "contact file is malformatted");
+		}
 		if (!contact.photos) {
 			libcontacts_contact_destroy(&contact);
 			for (i = 0; photos[i]; i++)

@@ -129,6 +129,9 @@ main(int argc, char *argv[])
 	if (lookup_location && parse_coord(lookup_location, &flat, &lat_min, &lat_max, &flon, &lon_min, &lon_max))
 		usage();
 
+	if (argc != 1 || !*argv[0] || strchr(argv[0], '/'))
+		usage();
+
 	if (remove == edit) {
 		if (edit)
 			usage();
@@ -137,9 +140,6 @@ main(int argc, char *argv[])
 
 	if (add)
 		edit = 0;
-
-	if (argc != 1 || !*argv[0] || strchr(argv[0], '/'))
-		usage();
 
 	errno = 0;
 	user = getpwuid(getuid());
