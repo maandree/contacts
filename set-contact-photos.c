@@ -60,9 +60,9 @@ again:
 		} else if (r[0] == '/' && r[1] == '.' && r[2] == '.' && (r[3] == '/' || !r[3])) {
 			*w = '\0';
 			target = get_target(ret, &targetlen);
+			*w = '/';
 			if (!target) {
-				while (w[-1] != '/')
-					w--;
+				while (*--w != '/');
 				r += 3;
 			} else if (!target[0]) {
 				eprintf("%s: encountered symlink with empty target\n", path);
@@ -86,8 +86,7 @@ again:
 					errno = ELOOP;
 					eprintf("%s:", path);
 				}
-				while (w[-1] != '/')
-					w--;
+				while (*--w != '/');
 				len1 = (size_t)(w - ret);
 				len2 = targetlen;
 				len3 = retlennul - (size_t)(r - ret);
