@@ -114,6 +114,7 @@ main(int argc, char *argv[])
 				libcontacts_block_destroy(*w);
 				free(*w--);
 			}
+			*w = NULL;
 			if (libcontacts_save_contact(&contact, user))
 				eprintf("libcontacts_save_contact %s:", *argv);
 		}

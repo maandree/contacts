@@ -197,7 +197,7 @@ main(int argc, char *argv[])
 			for (; contact.blocks[i]; i++);
 		contact.blocks = erealloc(contact.blocks, (i + 2) * sizeof(*contact.blocks));
 		contact.blocks[i + 1] = NULL;
-		contact.blocks[i] = ecalloc(1, sizeof(**contact.emails));
+		contact.blocks[i] = ecalloc(1, sizeof(**contact.blocks));
 		contact.blocks[i]->service      = estrdup(srv ? srv : ".global");
 		contact.blocks[i]->explicit     = explicit;
 		contact.blocks[i]->shadow_block = shadow_block;

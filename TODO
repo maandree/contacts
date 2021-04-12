@@ -1,6 +1,3 @@
-Test set-contact-blocks
-Test get-contact-blocks
-Test unblock-contact
 Add ability to filter on unset values in entries
 Add ability to remove values in entries
 Add man pages
