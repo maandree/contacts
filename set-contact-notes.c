@@ -1,19 +1,22 @@
 /* See LICENSE file for copyright and license details. */
 #include "common.h"
 
-USAGE("[-u] contact-id"); /* TODO add -a (append) */
+USAGE("[-a | -u] contact-id");
 
 
 int
 main(int argc, char *argv[])
 {
-	int unset = 0;
+	int append = 0, unset = 0;
 	struct passwd *user;
 	struct libcontacts_contact contact;
 	size_t size = 0, len = 0;
 	ssize_t r;
 
 	ARGBEGIN {
+	case 'a':
+		append = 1;
+		break;
 	case 'u':
 		unset = 1;
 		break;
@@ -21,7 +24,7 @@ main(int argc, char *argv[])
 		usage();
 	} ARGEND;
 
-	if (argc != 1)
+	if (argc != 1 || (append && unset))
 		usage();
 
 	if (!*argv[0] || strchr(argv[0], '/'))
@@ -35,8 +38,15 @@ main(int argc, char *argv[])
 	if (libcontacts_load_contact(argv[0], &contact, user))
 		eprintf("libcontacts_load_contact %s: %s\n", argv[0], errno ? strerror(errno) : "contact file is malformatted");
 
-	free(contact.notes);
-	contact.notes = NULL;
+	if (contact.notes) {
+		if (append) {
+			len = strlen(contact.notes);
+			size = len + 1;
+		} else {
+			free(contact.notes);
+			contact.notes = NULL;
+		}
+	}
 	if (!unset) {
 		for (;;) {
 			if (len == size)
@@ -49,8 +59,11 @@ main(int argc, char *argv[])
 			}
 			len += (size_t)r;
 		}
-		if (size)
+		if (size) {
+			if (len == size)
+				contact.notes = erealloc(contact.notes, size += 1);
 			contact.notes[len] = '\0';
+		}
 	}
 
 	if (libcontacts_save_contact(&contact, user))
