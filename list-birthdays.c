@@ -31,7 +31,7 @@ compare_by_birthday(const void *apv, const void *bpv)
 {
 	struct libcontacts_contact *const *ap = apv, *const *bp = bpv;
 	const struct libcontacts_contact *a = *ap, *b = *bp;
-	int ac, bc;
+	int av, bv, nv;
 	if (!a->birthday != !b->birthday)
 		return !a->birthday ? -1 : +1;
 	if (!a->birthday)
@@ -44,14 +44,16 @@ compare_by_birthday(const void *apv, const void *bpv)
 		return !a->birthday->day ? -1 : +1;
 	if (!a->birthday->day)
 		return 0;
-	ac = (12 + (a->birthday->month - 1 - now->tm_mon) % 12) % 12;
-	bc = (12 + (b->birthday->month - 1 - now->tm_mon) % 12) % 12;
-	if (ac != bc)
-		return ac - bc;
-	ac = (31 + (a->birthday->day - now->tm_mday) % 31) % 31;
-	bc = (31 + (b->birthday->day - now->tm_mday) % 31) % 31;
-	if (ac != bc)
-		return ac - bc;
+	av  = (12 + (a->birthday->month - 1) % 12) % 12 * 31;
+	av += (31 + (a->birthday->day   - 1) % 31) % 31;
+	bv  = (12 + (b->birthday->month - 1) % 12) % 12 * 31;
+	bv += (31 + (b->birthday->day   - 1) % 31) % 31;
+	nv  = (12 + (now->tm_mon)      % 12) % 12 * 31;
+	nv += (31 + (now->tm_mday - 1) % 31) % 31;
+	av = (12 * 31 + (av - nv) % (12 * 31)) % (12 * 31);
+	bv = (12 * 31 + (bv - nv) % (12 * 31)) % (12 * 31);
+	if (av != bv)
+		return av - bv;
 	if (a->birthday->before_on_common != b->birthday->before_on_common)
 		return a->birthday->before_on_common ? -1 : +1;
 	return 0;
