@@ -29,7 +29,7 @@ main(int argc, char *argv[])
 		}
 		if (id[i - 1] == '~')
 			eprintf("contact-id cannot end with ~\n");
-		if (id[0] == '.' && strcmp(id, ".me") && strcmp(id, ".groups"))
+		if (id[0] == '.' && strcmp(id, ".me") && strcmp(id, ".nobody"))
 			weprintf("it is recommended to only have [a-z0-9-] in contact-id\n");
 	}
 
