@@ -86,9 +86,16 @@ contacts: contacts.o $(BOBJ)
 
 contacts.c: contacts.c.in Makefile
 	printf '#define LIST_COMMANDS' > $@
-	printf '\\\n\tX(%s)' $(BIN) | tr - _ >> $@
+	for bin in $(BIN); do\
+		printf '\\\n\tX(%s, %s)' $$bin $$(printf '%s\n' $$bin | tr - _) || exit 1;\
+	done >> $@
 	printf '\n\n' >> $@
 	cat contacts.c.in >> $@
+# (printf '\\\n\tX(%s)' $(BIN); printf '\n\n') are run together
+# because the input of sed must be a text file, and the first
+# printf(1) do not generate a text file as text files are by
+# definition LF terminated unless they are empty (also no line
+# may exceed 2048 bytes including the LF)
 
 add-contact: add-contact.o
 	$(CC) -o $@ $@.o $(LDFLAGS)

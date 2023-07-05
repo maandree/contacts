@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define X(NAM) int main__##NAM(int, char *[]);
+#define X(DASH, UNDERSCORE) int main__##UNDERSCORE(int, char *[]);
 LIST_COMMANDS
 #undef X
 
@@ -11,17 +11,15 @@ char *argv0 = NULL;
 int
 main(int argc, char *argv[])
 {
- 	char *name, *p;
+	const char *name;
 
       	name = strrchr(*argv, '/');
 	if (!name++)
 		name = *argv;
-	for (p = name; (p = strchr(p, '-'));)
-		*p++ = '_';
 
-#define X(NAM)\
-	if (!strcmp(name, #NAM))\
-		return main__##NAM(argc, argv);
+#define X(DASH, UNDERSCORE)\
+	if (!strcmp(name, #DASH))\
+		return main__##UNDERSCORE(argc, argv);
 	LIST_COMMANDS;
 #undef X
 
